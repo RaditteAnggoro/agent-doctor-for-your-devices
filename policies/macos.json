@@ -1,0 +1,9 @@
+{
+  "scope": "Explicit readable user folders",
+  "respect": [
+    "TCC",
+    "SIP"
+  ],
+  "usage_dates": "unknown without reliable evidence",
+  "host_tests": "Verify current CI; local tests alone do not prove all versions"
+}

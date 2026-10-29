@@ -1,0 +1,822 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "finding.schema.json",
+  "title": "Feature-specific read-only finding",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[JPAD]-[0-9]{6}$"
+        },
+        "feature": {
+          "const": "junk"
+        },
+        "title": {
+          "type": "string"
+        },
+        "paths": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk": {
+          "enum": [
+            "LOW",
+            "MODERATE",
+            "HIGH",
+            "PROTECTED",
+            "UNKNOWN"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "UNVERIFIED"
+          ]
+        },
+        "recommendation": {
+          "enum": [
+            "KEEP",
+            "INSPECT",
+            "REVIEW_LATER",
+            "MANUAL_ACTION_POSSIBLE",
+            "DO_NOT_TOUCH"
+          ]
+        },
+        "why_flagged": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "possible_consequences": {
+          "type": "string"
+        },
+        "manual_inspection": {
+          "type": "string"
+        },
+        "junk": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "modified": {
+                  "type": "string"
+                },
+                "device": {
+                  "type": "string"
+                },
+                "identity": {
+                  "type": "string"
+                },
+                "hardlink": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "symlink": {
+                  "type": "boolean"
+                },
+                "sparse": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "clone": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "cloud": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "path",
+                "size",
+                "modified",
+                "device",
+                "identity",
+                "hardlink",
+                "symlink",
+                "sparse",
+                "clone",
+                "cloud"
+              ],
+              "additionalProperties": false
+            },
+            "basename": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "reclaimable_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "last_accessed": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "owning_app": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "active_use_hints": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "backup": {
+              "type": "boolean"
+            },
+            "review_status": {
+              "enum": [
+                "REVIEW_LOW_RISK",
+                "REVIEW_WITH_CAUTION",
+                "KEEP_RECOMMENDED",
+                "PROTECTED",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "required": [
+            "file",
+            "basename",
+            "kind",
+            "category",
+            "reclaimable_bytes",
+            "last_accessed",
+            "owning_app",
+            "active_use_hints",
+            "backup",
+            "review_status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "feature",
+        "title",
+        "paths",
+        "risk",
+        "confidence",
+        "recommendation",
+        "why_flagged",
+        "evidence",
+        "limitations",
+        "possible_consequences",
+        "manual_inspection",
+        "junk"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[JPAD]-[0-9]{6}$"
+        },
+        "feature": {
+          "const": "performance"
+        },
+        "title": {
+          "type": "string"
+        },
+        "paths": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk": {
+          "enum": [
+            "LOW",
+            "MODERATE",
+            "HIGH",
+            "PROTECTED",
+            "UNKNOWN"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "UNVERIFIED"
+          ]
+        },
+        "recommendation": {
+          "enum": [
+            "KEEP",
+            "INSPECT",
+            "REVIEW_LATER",
+            "MANUAL_ACTION_POSSIBLE",
+            "DO_NOT_TOUCH"
+          ]
+        },
+        "why_flagged": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "possible_consequences": {
+          "type": "string"
+        },
+        "manual_inspection": {
+          "type": "string"
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "pid": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "process_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "executable_path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "cpu_percent": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "cpu_semantics": {
+              "type": "string"
+            },
+            "rss_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "memory_total_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "memory_available_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "swap_used_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "disk_total_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "disk_available_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "observation_seconds": {
+              "type": "number",
+              "minimum": 0
+            },
+            "startup_source": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "owner": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "running": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "dependency_notes": {
+              "type": "string"
+            },
+            "observed_impact": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pid",
+            "process_name",
+            "executable_path",
+            "cpu_percent",
+            "cpu_semantics",
+            "rss_bytes",
+            "memory_total_bytes",
+            "memory_available_bytes",
+            "swap_used_bytes",
+            "disk_total_bytes",
+            "disk_available_bytes",
+            "observation_seconds",
+            "startup_source",
+            "owner",
+            "running",
+            "dependency_notes",
+            "observed_impact"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "feature",
+        "title",
+        "paths",
+        "risk",
+        "confidence",
+        "recommendation",
+        "why_flagged",
+        "evidence",
+        "limitations",
+        "possible_consequences",
+        "manual_inspection",
+        "performance"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[JPAD]-[0-9]{6}$"
+        },
+        "feature": {
+          "const": "applications"
+        },
+        "title": {
+          "type": "string"
+        },
+        "paths": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk": {
+          "enum": [
+            "LOW",
+            "MODERATE",
+            "HIGH",
+            "PROTECTED",
+            "UNKNOWN"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "UNVERIFIED"
+          ]
+        },
+        "recommendation": {
+          "enum": [
+            "KEEP",
+            "INSPECT",
+            "REVIEW_LATER",
+            "MANUAL_ACTION_POSSIBLE",
+            "DO_NOT_TOUCH"
+          ]
+        },
+        "why_flagged": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "possible_consequences": {
+          "type": "string"
+        },
+        "manual_inspection": {
+          "type": "string"
+        },
+        "application": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "location": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source": {
+              "type": "string"
+            },
+            "install_size_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "size_method": {
+              "type": "string"
+            },
+            "last_usage": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "usage_provenance": {
+              "type": "string"
+            },
+            "installed_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "updated_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "running": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "related_services": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "dependency_notes": {
+              "type": "string"
+            },
+            "uninstall_method": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "version",
+            "location",
+            "source",
+            "install_size_bytes",
+            "size_method",
+            "last_usage",
+            "usage_provenance",
+            "installed_at",
+            "updated_at",
+            "running",
+            "related_services",
+            "dependency_notes",
+            "uninstall_method"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "feature",
+        "title",
+        "paths",
+        "risk",
+        "confidence",
+        "recommendation",
+        "why_flagged",
+        "evidence",
+        "limitations",
+        "possible_consequences",
+        "manual_inspection",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[JPAD]-[0-9]{6}$"
+        },
+        "feature": {
+          "const": "duplicates"
+        },
+        "title": {
+          "type": "string"
+        },
+        "paths": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk": {
+          "enum": [
+            "LOW",
+            "MODERATE",
+            "HIGH",
+            "PROTECTED",
+            "UNKNOWN"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "UNVERIFIED"
+          ]
+        },
+        "recommendation": {
+          "enum": [
+            "KEEP",
+            "INSPECT",
+            "REVIEW_LATER",
+            "MANUAL_ACTION_POSSIBLE",
+            "DO_NOT_TOUCH"
+          ]
+        },
+        "why_flagged": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "possible_consequences": {
+          "type": "string"
+        },
+        "manual_inspection": {
+          "type": "string"
+        },
+        "duplicate": {
+          "type": "object",
+          "properties": {
+            "match_type": {
+              "enum": [
+                "EXACT_CONTENT"
+              ]
+            },
+            "hash_algorithm": {
+              "enum": [
+                "SHA-256"
+              ]
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^([a-f0-9]{64}|\\[REDACTED\\])$"
+            },
+            "members": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "modified": {
+                    "type": "string"
+                  },
+                  "device": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  },
+                  "hardlink": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "symlink": {
+                    "type": "boolean"
+                  },
+                  "sparse": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "clone": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "cloud": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path",
+                  "size",
+                  "modified",
+                  "device",
+                  "identity",
+                  "hardlink",
+                  "symlink",
+                  "sparse",
+                  "clone",
+                  "cloud"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "suggested_retain": {
+              "type": "string"
+            },
+            "retain_reason": {
+              "type": "string"
+            },
+            "logical_redundant_bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "physical_reclaimable_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "backup_warning": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "match_type",
+            "hash_algorithm",
+            "digest",
+            "members",
+            "suggested_retain",
+            "retain_reason",
+            "logical_redundant_bytes",
+            "physical_reclaimable_bytes",
+            "backup_warning"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "feature",
+        "title",
+        "paths",
+        "risk",
+        "confidence",
+        "recommendation",
+        "why_flagged",
+        "evidence",
+        "limitations",
+        "possible_consequences",
+        "manual_inspection",
+        "duplicate"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

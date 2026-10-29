@@ -1,0 +1,9 @@
+{
+  "scope": "Native Windows executable, approved user folders",
+  "exclude": [
+    "junctions",
+    "reparse links",
+    "Windows system paths"
+  ],
+  "registry": "read-only metadata only"
+}

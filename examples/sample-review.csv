@@ -1,0 +1,3 @@
+scan_id,finding_id,decision,note
+synthetic-scan-001,J-000001,keep,SYNTHETIC: still wanted
+synthetic-scan-001,D-000001,review-later,SYNTHETIC: compare backup roles later

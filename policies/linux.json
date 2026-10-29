@@ -1,0 +1,5 @@
+{
+  "scope": "Approved local folders and available metadata",
+  "tools": "Capability-driven; package managers optional",
+  "containers": "Namespace-local metrics only"
+}

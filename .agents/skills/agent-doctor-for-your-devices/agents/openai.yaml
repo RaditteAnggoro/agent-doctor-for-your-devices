@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Doctor For Your Devices"
+  short_description: "Read-only device scans and guided manual review"
+  default_prompt: "Use $agent-doctor-for-your-devices to review my device with a local read-only scan."

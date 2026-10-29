@@ -1,0 +1,25 @@
+# Privacy
+
+The CLI makes no network requests, performs no auto-update checks and sends no
+telemetry. It does not collect serial numbers, device fingerprints or raw process
+arguments. Agent clients are separate software and can have their own data policies
+and usage costs. Do not paste a private report into an agent without considering
+that client's handling of it.
+
+Filesystem scans read approved metadata. Exact duplicate analysis reads file
+contents only to calculate streaming hashes and verify matches. It does not retain
+or print those contents. OS metadata collectors read only supported local sources.
+Reading can update filesystem access times or hydrate files on unusual filesystems;
+cloud paths are conservatively excluded and physical storage savings are unknown.
+
+A scan prints its result; `--store` explicitly opts into local report/session storage.
+Use `--data-dir` to choose a private storage folder. Persisted reports contain exact
+paths and may identify apps or processes. Exports write only to the path you select.
+Do not save them inside a scanned tree or a public repository. On Unix, the final session directory must have mode 0700 and report/review files
+use mode 0600. Windows access follows the parent directory's ACL; Go file modes do
+not establish private NTFS ACLs, so choose a user-private directory.
+
+`export --share-safe` replaces data-derived strings for safer sharing. Review the
+output yourself: feature counts, byte sizes and timing can still be sensitive.
+No redaction can guarantee anonymity. Delete saved report/session files manually
+when no longer needed; the CLI has no hidden retention or upload service.

@@ -1,0 +1,314 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "enum": [
+        "1.0"
+      ]
+    },
+    "product": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "scan_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "display_timezone": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "os": {
+          "type": "string"
+        },
+        "host_os": {
+          "type": "string"
+        },
+        "architecture": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "remote": {
+          "type": "boolean"
+        },
+        "os_version": {
+          "type": "string"
+        },
+        "tools": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "os",
+        "host_os",
+        "architecture",
+        "type",
+        "remote",
+        "os_version",
+        "tools",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "roots": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclusions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_files": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "roots",
+        "exclusions",
+        "max_files",
+        "max_depth",
+        "max_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "selected_features": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "enum": [
+          "junk",
+          "performance",
+          "applications",
+          "duplicates"
+        ]
+      }
+    },
+    "method": {
+      "type": "string"
+    },
+    "elapsed_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "permissions": {
+      "type": "string"
+    },
+    "accuracy_notes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "results": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "feature": {
+            "enum": [
+              "junk",
+              "performance",
+              "applications",
+              "duplicates"
+            ]
+          },
+          "support": {
+            "enum": [
+              "SUPPORTED",
+              "PARTIAL",
+              "UNSUPPORTED",
+              "PERMISSION_DENIED",
+              "NOT_TESTED",
+              "SKIPPED"
+            ]
+          },
+          "coverage": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "enum": [
+                  "COMPLETED",
+                  "PARTIAL",
+                  "UNSUPPORTED",
+                  "PERMISSION_DENIED",
+                  "SKIPPED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "visited": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "inaccessible": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "skipped": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "bytes_read": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "status",
+              "visited",
+              "inaccessible",
+              "skipped",
+              "bytes_read"
+            ],
+            "additionalProperties": false
+          },
+          "findings": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "finding.schema.json"
+            }
+          },
+          "warnings": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "errors": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "observations": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "collection_method": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature",
+          "support",
+          "coverage",
+          "findings",
+          "warnings",
+          "errors",
+          "observations",
+          "collection_method"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "actual_changes": {
+      "type": "object",
+      "properties": {
+        "files_removed": {
+          "const": 0
+        },
+        "apps_uninstalled": {
+          "const": 0
+        },
+        "processes_stopped": {
+          "const": 0
+        }
+      },
+      "required": [
+        "files_removed",
+        "apps_uninstalled",
+        "processes_stopped"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "product",
+    "version",
+    "scan_id",
+    "timestamp",
+    "display_timezone",
+    "environment",
+    "scope",
+    "selected_features",
+    "method",
+    "elapsed_seconds",
+    "permissions",
+    "accuracy_notes",
+    "results",
+    "actual_changes"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scan-report.schema.json",
+  "title": "Agent Doctor v1 scan report"
+}

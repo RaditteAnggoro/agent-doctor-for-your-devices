@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "role": "reference documentation; runtime safety code is authoritative",
+  "read_only": true,
+  "automated_actions": [],
+  "network_required": false,
+  "default_limits": {
+    "max_files": 10000,
+    "max_depth": 12,
+    "max_bytes": 1073741824
+  },
+  "protected_categories": [
+    "credentials",
+    "browser profiles",
+    "working repositories",
+    "system paths",
+    "managed photo libraries",
+    "cloud sync",
+    "symlinks",
+    "cross-volume traversal"
+  ],
+  "physical_reclaimable_bytes": "unknown unless independently measured"
+}

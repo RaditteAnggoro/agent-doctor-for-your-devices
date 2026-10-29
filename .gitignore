@@ -1,0 +1,26 @@
+# Build output
+/bin/
+/dist/
+*.exe
+*.test
+coverage.out
+
+# Private reports and local sessions
+/reports/
+/scans/
+/sessions/
+/.agent-doctor/
+*.scan.json
+*.review.json
+
+# Local credentials and editor state
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+
+# Default go build executable
+/agent-doctor
+/agent-doctor.exe

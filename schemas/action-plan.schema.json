@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "status": {
+      "const": "NOT_IMPLEMENTED"
+    },
+    "reason": {
+      "const": "Automated actions are outside v1. Retain all source items."
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "status",
+    "reason",
+    "actions"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "action-plan.schema.json",
+  "description": "Reserved capability response; no executable action plan or apply command exists in v1."
+}

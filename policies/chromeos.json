@@ -1,0 +1,9 @@
+{
+  "scope": "Crostini Linux and explicitly shared local folders only",
+  "unsupported": [
+    "ChromeOS host performance",
+    "Android app inventory",
+    "ChromeOS host startup"
+  ],
+  "verification": "Manual device test required"
+}
