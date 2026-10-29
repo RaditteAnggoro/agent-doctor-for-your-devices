@@ -141,7 +141,7 @@ See [development](docs/DEVELOPMENT.md) and [architecture](docs/ARCHITECTURE.md).
 
 ## Inspiration & credits
 
-Created by **Raditte Anggoro** as an independent original project. Feature ideas were
+Created by **RA** as an independent original project. Feature ideas were
 inspired by [CleanMyMac](https://macpaw.com/cleanmymac), terminal maintenance workflows
 in [Mole](https://github.com/tw93/Mole), duplicate analysis in
 [Czkawka](https://github.com/qarmin/czkawka), application review in
@@ -149,5 +149,5 @@ in [Mole](https://github.com/tw93/Mole), duplicate analysis in
 in [mac-cleanup-py](https://github.com/mac-cleanup/mac-cleanup-py). There is no affiliation
 or endorsement and no upstream implementation code is incorporated.
 
-Original code: [MIT](LICENSE), copyright 2026 Raditte Anggoro. Upstream licenses differ;
+Original code: [MIT](LICENSE), copyright 2026 RA. Upstream licenses differ;
 see [inspiration](docs/INSPIRATION.md), [notices](THIRD_PARTY_NOTICES.md) and [NOTICE.md](NOTICE.md).
