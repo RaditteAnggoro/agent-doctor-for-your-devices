@@ -136,6 +136,10 @@ func waitFor(ctx context.Context, duration time.Duration) error {
 }
 
 func sampleFor(ctx context.Context, osName string, run runner, duration time.Duration, wait func(context.Context, time.Duration) error) ([]process, float64, error) {
+	return sampleWithClock(ctx, osName, run, duration, wait, time.Now)
+}
+
+func sampleWithClock(ctx context.Context, osName string, run runner, duration time.Duration, wait func(context.Context, time.Duration) error, now func() time.Time) ([]process, float64, error) {
 	probe := func() ([]process, error) {
 		if osName == "windows" {
 			b, e := run(ctx, "powershell", "-NoProfile", "-NonInteractive", "-Command", `$ErrorActionPreference='Stop'; @(Get-Process | Where-Object {$null -ne $_.CPU} | Select-Object Id,ProcessName,CPU,WorkingSet64) | ConvertTo-Json -Compress`)
@@ -154,12 +158,12 @@ func sampleFor(ctx context.Context, osName string, run runner, duration time.Dur
 	if e != nil {
 		return nil, 0, e
 	}
-	start := time.Now()
+	start := now()
 	if err := wait(ctx, duration); err != nil {
 		return nil, 0, err
 	}
 	second, e := probe()
-	elapsed := time.Since(start).Seconds()
+	elapsed := now().Sub(start).Seconds()
 	if elapsed <= 0 {
 		return nil, 0, fmt.Errorf("observation interval was not measurable")
 	}

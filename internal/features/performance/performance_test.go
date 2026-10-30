@@ -23,12 +23,12 @@ func TestSampleReportsMeasuredDeltaAndNoArguments(t *testing.T) {
 		}
 		return []byte("42 501 2048 0:01.10 editor with spaces\n"), nil
 	}
-	procs, elapsed, e := sampleFor(context.Background(), "darwin", run, 3*time.Second, func(_ context.Context, d time.Duration) error {
+	procs, elapsed, e := sampleWithClock(context.Background(), "darwin", run, 3*time.Second, func(_ context.Context, d time.Duration) error {
 		if d != 3*time.Second {
 			t.Fatalf("wrong requested observation window %s", d)
 		}
 		return nil
-	})
+	}, observationClock(3250*time.Millisecond))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -79,13 +79,13 @@ func TestCPUTimeAndPIDReuse(t *testing.T) {
 		}
 	}
 	calls := 0
-	procs, _, e := sampleFor(context.Background(), "linux", func(context.Context, string, ...string) ([]byte, error) {
+	procs, _, e := sampleWithClock(context.Background(), "linux", func(context.Context, string, ...string) ([]byte, error) {
 		calls++
 		if calls == 1 {
 			return []byte("42 501 1 0:10 a\n"), nil
 		}
 		return []byte("42 501 1 0:01 b\n"), nil
-	}, 3*time.Second, func(context.Context, time.Duration) error { return nil })
+	}, 3*time.Second, func(context.Context, time.Duration) error { return nil }, observationClock(3*time.Second))
 	if e != nil || len(procs) != 0 {
 		t.Fatal("reused PID was compared")
 	}
@@ -197,5 +197,23 @@ func TestCollectDurationValidationDoesNotProbeDevice(t *testing.T) {
 	}
 	if DefaultSampleDuration != 3*time.Second {
 		t.Fatal("unexpected default")
+	}
+}
+
+func observationClock(elapsed time.Duration) func() time.Time {
+	start := time.Date(2026, 10, 30, 0, 0, 0, 0, time.UTC)
+	calls := 0
+	return func() time.Time {
+		calls++
+		if calls == 1 {
+			return start
+		}
+		return start.Add(elapsed)
+	}
+}
+func TestUnmeasurableCPUIntervalRemainsUnavailable(t *testing.T) {
+	_, _, err := sampleWithClock(context.Background(), "linux", func(context.Context, string, ...string) ([]byte, error) { return []byte("42 501 1 0:01 app\n"), nil }, 3*time.Second, func(context.Context, time.Duration) error { return nil }, observationClock(0))
+	if err == nil {
+		t.Fatal("unmeasurable interval became fabricated CPU value")
 	}
 }

@@ -331,7 +331,7 @@ func applyRunning(a *app, processes []string, err error) {
 	running := false
 	for _, p := range processes {
 		p = strings.TrimSpace(p)
-		if strings.HasPrefix(p, a.location+string(os.PathSeparator)) {
+		if strings.HasPrefix(filepath.ToSlash(p), filepath.ToSlash(a.location)+"/") {
 			running = true
 			break
 		}
