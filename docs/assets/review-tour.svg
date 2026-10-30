@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="810" viewBox="0 0 1200 810" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Doctor: from a friendly hello to an informed decision</title>
+  <desc id="desc">Illustrated agent conversation in English alongside a synthetic application report: 734.00 MB logical size, a September 14, 2026 launch signal and unknown dependencies. Choose to keep, inspect or review later. Eligible macOS Trash actions require a separate exact-target plan and hash approval. This is a guide, not an app screenshot or real device scan.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#0b1424"/>
+      <stop offset="1" stop-color="#11293a"/>
+    </linearGradient>
+    <linearGradient id="accent" x2="1" y2="0">
+      <stop stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="810" rx="24" fill="url(#background)"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="36" y="34" width="48" height="48" rx="14" fill="#143c44"/>
+    <path d="M49 58h7l4-10 5 20 5-10h5" fill="none" stroke="#5eead4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="100" y="58" fill="#f0f9ff" font-size="27" font-weight="700">Agent Doctor</text>
+    <text x="100" y="82" fill="#b3c8da" font-size="16">Scan first. Understand everything. Decide yourself.</text>
+    <rect x="948" y="41" width="216" height="32" rx="16" fill="#163a43"/>
+    <text x="1056" y="62" text-anchor="middle" fill="#8df0df" font-size="13" font-weight="700" letter-spacing="1">ILLUSTRATED WALKTHROUGH</text>
+
+    <rect x="36" y="116" width="548" height="390" rx="18" fill="#101e30" stroke="#2b4259"/>
+    <circle cx="60" cy="140" r="4" fill="#5eead4"/>
+    <text x="74" y="145" fill="#bbcedf" font-size="13" font-weight="700" letter-spacing="1">A CONVERSATION IN YOUR LANGUAGE</text>
+    <path d="M36 162h548" stroke="#2b4259"/>
+    <text x="60" y="196" fill="#5eead4" font-size="14" font-weight="700">AGENT DOCTOR</text>
+    <text x="60" y="225" fill="#f0f9ff" font-size="19" font-weight="600">Hey, welcome to Agent Doctor!</text>
+    <text x="60" y="251" fill="#c3d5e5" font-size="16">Let's check your device, understand the results,</text>
+    <text x="60" y="275" fill="#c3d5e5" font-size="16">and choose what to do next, one step at a time.</text>
+    <text x="60" y="316" fill="#edf6ff" font-size="17">What should I call you? You can skip this.</text>
+    <rect x="442" y="336" width="116" height="41" rx="12" fill="#20465b"/>
+    <text x="500" y="362" text-anchor="middle" fill="#e4f7ff" font-size="17">You: Raka</text>
+    <text x="60" y="406" fill="#edf6ff" font-size="17">What would you like help with, Raka?</text>
+    <rect x="250" y="427" width="308" height="43" rx="12" fill="#20465b"/>
+    <text x="404" y="454" text-anchor="middle" fill="#e4f7ff" font-size="16">You: My storage is getting full.</text>
+    <text x="60" y="492" fill="#99b5cb" font-size="12">Optional intro · Choose checks and scope before any scan</text>
+
+    <rect x="608" y="116" width="556" height="390" rx="18" fill="#101e30" stroke="#2b4259"/>
+    <circle cx="632" cy="140" r="4" fill="#7dd3fc"/>
+    <text x="646" y="145" fill="#bbcedf" font-size="13" font-weight="700" letter-spacing="1">EVIDENCE YOU CAN ACTUALLY REVIEW</text>
+    <path d="M608 162h556" stroke="#2b4259"/>
+    <text x="632" y="194" fill="#f0f9ff" font-size="21" font-weight="700">Synthetic App</text>
+    <rect x="982" y="175" width="158" height="27" rx="13" fill="#384022"/>
+    <text x="1061" y="194" text-anchor="middle" fill="#e1eaa1" font-size="12" font-weight="700">NEEDS REVIEW</text>
+    <text x="632" y="218" fill="#a6bfd3" font-size="13">A-000001 · synthetic sample data</text>
+    <text x="632" y="254" fill="#abc5d9" font-size="14">Logical app size</text>
+    <text x="1140" y="254" text-anchor="end" fill="#ecf8ff" font-size="17" font-weight="600">734.00 MB · COMPLETE</text>
+    <path d="M632 269h508" stroke="#263d52"/>
+    <text x="632" y="294" fill="#abc5d9" font-size="14">Last-used signal</text>
+    <text x="1140" y="294" text-anchor="end" fill="#ecf8ff" font-size="17">2026-09-14</text>
+    <text x="632" y="318" fill="#9bb7cd" font-size="13">Source: synthetic Spotlight open metadata</text>
+    <path d="M632 333h508" stroke="#263d52"/>
+    <text x="632" y="358" fill="#abc5d9" font-size="14">Running evidence</text>
+    <text x="1140" y="358" text-anchor="end" fill="#ecf8ff" font-size="16">No match in snapshot</text>
+    <text x="632" y="389" fill="#abc5d9" font-size="14">Dependencies / external data</text>
+    <text x="1140" y="389" text-anchor="end" fill="#fde68a" font-size="16" font-weight="600">UNKNOWN</text>
+    <rect x="632" y="411" width="508" height="72" rx="12" fill="#172f3c"/>
+    <text x="648" y="436" fill="#d9eef6" font-size="14">Still use it occasionally? Check vendor instructions</text>
+    <text x="648" y="459" fill="#d9eef6" font-size="14">and dependencies before choosing removal.</text>
+
+    <g fill="none" stroke="#426679" stroke-width="2">
+      <path d="M310 506v24h576v-24"/>
+      <path d="M598 530v22"/>
+      <path d="m592 546 6 7 6-7"/>
+    </g>
+    <rect x="36" y="568" width="1128" height="129" rx="18" fill="#112f3a" stroke="#32636c"/>
+    <text x="60" y="602" fill="#f0fdfa" font-size="22" font-weight="700">Your decision, with the evidence in front of you.</text>
+    <text x="60" y="631" fill="#c1e3e4" font-size="16">Keep it, inspect the details or review it later. A finding never selects a removal for you.</text>
+    <rect x="60" y="651" width="110" height="28" rx="14" fill="#25515a"/>
+    <text x="115" y="670" text-anchor="middle" fill="#dcfdf6" font-size="13">KEEP</text>
+    <rect x="182" y="651" width="152" height="28" rx="14" fill="#25515a"/>
+    <text x="258" y="670" text-anchor="middle" fill="#dcfdf6" font-size="13">INSPECT DETAILS</text>
+    <rect x="346" y="651" width="150" height="28" rx="14" fill="#25515a"/>
+    <text x="421" y="670" text-anchor="middle" fill="#dcfdf6" font-size="13">REVIEW LATER</text>
+    <text x="1140" y="670" text-anchor="end" fill="#94d9d0" font-size="14">Removal? Review a separate exact-target plan.</text>
+
+    <rect x="36" y="722" width="4" height="53" rx="2" fill="url(#accent)"/>
+    <text x="54" y="742" fill="#d8eaf6" font-size="15" font-weight="600">Scans are read-only. Eligible macOS actions require separate plan-hash approval.</text>
+    <text x="54" y="767" fill="#a5bed1" font-size="14">Launch signals are incomplete history. Logical size is not a promise of physical recovery. No automatic cleanup.</text>
+  </g>
+</svg>

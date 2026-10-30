@@ -2,9 +2,18 @@
 
 **Scan first. Understand everything. Decide yourself.**
 
+[Take the tour](#a-quick-visual-tour) · [Get started](#build-from-source) ·
+[See a report](#what-you-see-before-deciding) · [Use with an agent](#use-with-an-agent) ·
+[Delete / uninstall](#experimental-delete-and-uninstall-phase)
+
 A local Go CLI plus an agent skill for investigating device maintenance. It finds
 explainable junk candidates, samples performance, inventories applications and groups
 exact duplicates. Findings include evidence, uncertainty and manual inspection steps.
+
+![Illustrated Agent Doctor workflow: a friendly chat leads to a scoped scan, evidence review and an explicit user decision. All report values shown are synthetic.](docs/assets/review-tour.svg)
+
+*Illustrated chat and report preview, using synthetic data. This is a visual guide,
+not a screenshot of a graphical app; Agent Doctor runs in a terminal or an agent chat.*
 
 **Scans remain read-only toward device data.** Version 0.2 adds richer decision
 reports and a separate experimental action workflow. On eligible native macOS
@@ -13,6 +22,45 @@ Trash. There is no permanent deletion, process termination or app-data purge.
 Reports and review state are written when you choose local storage/export; action
 plans and their journals require private local storage. You can keep every item and finish with a
 useful report. No telemetry, account or network connection is required by the CLI.
+
+## A quick visual tour
+
+```mermaid
+flowchart TD
+    A["Say hello in your language"] --> B["Choose device, checks and folder scope"]
+    B --> C["Confirm scope and whether to save locally"]
+    C --> D["Run a bounded read-only scan"]
+    D --> E["Review evidence, missing data and consequences"]
+    E --> F{"Your next step"}
+    F --> G["Keep everything, inspect details or review later"]
+    F --> H["Request an exact removal target"]
+    H --> I{"Eligible native macOS item?"}
+    I -->|Yes| J["Review immutable plan and approve its exact hash"]
+    I -->|No| K["Explain blockers and manual review options"]
+    J --> L["Revalidate target, move to Trash and journal outcome"]
+```
+
+The language-aware chat comes from the [agent skill](#use-with-an-agent).
+The standalone CLI provides fixed interactive menus; its current prompts are in
+Bahasa Indonesia. Both routes use the same local evidence collectors. Scan consent
+and a later action-plan approval are separate decisions.
+
+<details>
+<summary><strong>Walk through a first session</strong></summary>
+
+1. Say what you need help with. A nickname and a short description are optional.
+2. Choose the device and checks: junk, performance, applications, duplicates or all.
+3. For file checks, choose specific folders. Confirm the scope and whether to save
+   the report before scanning.
+4. Review each finding with its size, available usage evidence and limitations.
+   Ask for details, keep it or review it later.
+5. If you request a supported removal, review the exact target and consequences in
+   a separate plan. Only its explicit hash approval can proceed to native Trash.
+
+Keeping every item is a valid outcome. See [the full action guide](docs/ACTIONS.md)
+for eligibility, expiry, recovery and platform limits.
+
+</details>
 
 ## Build from source
 
@@ -53,7 +101,7 @@ agent-doctor scan --feature performance
 agent-doctor scan --feature applications
 ```
 
-Version **0.3.0** starts a fresh interactive session with a friendly Bahasa Indonesia greeting,
+Version **0.3.0** starts a fresh interactive CLI session with a friendly greeting,
 an optional nickname and an optional description of what you want help with.
 Then it asks about the device OS and confirms the detected execution environment.
 Noninteractive filesystem scans require explicit roots. `--all` never grants whole-disk
@@ -61,19 +109,37 @@ permission. Inspect `doctor` output first; WSL, Crostini, remote and container s
 require `--confirm-environment` to acknowledge their restricted scope. A Linux binary
 inside WSL does not measure Windows host health.
 
-A short example of the new conversation (illustrative; not a device scan):
+A short agent-chat example in English (illustrative; not literal CLI output or a
+device scan). The agent follows your conversational language and any preference
+you state; you can switch languages as you go.
 
 ```text
-Agent Doctor: Hai, selamat datang di Agent Doctor!
-              Aku bantu kamu cek kondisi perangkat, pahami hasilnya,
-              dan pilih langkah berikutnya. Kita mulai pelan-pelan, ya.
-Agent Doctor: Biar enak ngobrol, aku panggil kamu siapa? Boleh dilewati.
-Kamu: Raka
-Agent Doctor: Lagi pengin dibantu apa? Misalnya perangkat lemot,
-              storage penuh, atau cuma mau cek rutin.
-Kamu: Storage-ku mulai penuh.
-Agent Doctor: Oke, Raka. Kita lanjut pilih perangkat dan bagian yang mau dicek.
+Agent Doctor: Hey, welcome to Agent Doctor!
+              I'll help you check your device, understand the results,
+              and choose what to do next. Let's take it one step at a time.
+Agent Doctor: What should I call you? You can skip this.
+You: Raka
+Agent Doctor: What would you like help with? Maybe your device feels slow,
+              storage is filling up, or you just want a routine check.
+You: My storage is getting full.
+Agent Doctor: Got it, Raka. Let's choose your device and what you'd like to check.
 ```
+
+<details>
+<summary><strong>What if I switch languages?</strong></summary>
+
+```text
+You: Bisa lanjut pakai bahasa Indonesia? Cek Downloads aja dulu.
+Agent Doctor: Bisa, Raka. Kita lanjut pakai bahasa Indonesia.
+              Mau cek file kandidat junk, duplikat, atau keduanya di Downloads?
+```
+
+The agent keeps your current context and pending choices. It does not restart the
+intro or treat a language change as scan or deletion approval. Paths, command flags,
+finding IDs and approval hashes stay exactly as recorded. Tool output and JSON retain
+their existing format; the agent explains them in your chosen language.
+
+</details>
 
 Both intro questions are optional: press Enter or type `skip`/`lewati`. After that,
 use the numbered menu choices or their text aliases; clear `ya`/`yes` answers work
@@ -84,8 +150,8 @@ Nickname and issue text are used for the current conversation/process and are no
 copied into reports, exports, saved scan/review state or a profile. A new CLI process
 starts fresh. In an ongoing agent chat, switching features or resuming a review
 keeps the existing context without repeating the welcome/name questions. The skill
-uses informal aku/kamu language by default and follows a language preference you
-state. Technical reports and JSON fields retain their existing structured format.
+uses a friendly, informal tone in your language, with aku/kamu when speaking
+Indonesian. Technical reports and JSON fields retain their existing structured format.
 
 Without `--store`, the report goes to stdout and no session is saved. Add `--store`
 for later review, optionally with `--data-dir <private-folder>`. Saved reports contain
@@ -116,6 +182,39 @@ data-derived strings; inspect remaining counts and sizes before sharing. See
 [reporting](docs/REPORTING.md) for formats, review state and exit codes. Synthetic
 output examples are in [`examples/`](examples/); their measurements are not device
 findings.
+
+## What you see before deciding
+
+| Check | Evidence you can review | A useful next question |
+| --- | --- | --- |
+| Applications | Logical bundle/package size and completeness, last-used signal and source, running state, role and blockers | Do I still need it, and does the vendor require a dedicated uninstaller? |
+| Junk candidates | Exact path, size, modified date, file category and missing usage evidence | Is this still needed for work, restore or offline installation? |
+| Duplicates | Every member path, size, dates, exact-content verification and link observations | Which copy must stay available, and is either one referenced or a backup? |
+| Performance | CPU sample window, visible process memory, supported system capacity and unknown metrics | Does this match a representative workload, or should I observe longer? |
+
+<details>
+<summary><strong>Open a synthetic application report excerpt</strong></summary>
+
+This excerpt comes from the [complete synthetic report](examples/sample-summary.md).
+It is sample data, not a diagnosis of your device.
+
+| Field | Example value |
+| --- | --- |
+| Finding | `A-000001` — Synthetic App |
+| Logical app size | 734.00 MB (734003200 bytes), measurement COMPLETED |
+| Last-used signal | 2026-09-14; synthetic Spotlight LaunchServices open metadata |
+| Running evidence | No matching process in the synthetic snapshot |
+| Role | MAIN; not marked as a system app |
+| Still unknown | External app data, licenses and actual dependency graph |
+| Next step | Inspect the app, check vendor instructions and decide whether to keep or review later |
+
+A launch signal is not complete usage history. No observed process does not mean an
+app is unused. Logical size does not promise physically recoverable space.
+
+Open the [Markdown report](examples/sample-summary.md), [structured JSON](examples/sample-findings.json)
+or [duplicate CSV](examples/sample-duplicates.csv) to see the formats before running a scan.
+
+</details>
 
 ## What is implemented
 

@@ -1,6 +1,8 @@
 # Questions that change a decision
 
-Ask only where a concrete answer changes scope or interpretation.
+Ask only where a concrete answer changes scope or interpretation. These Indonesian
+examples illustrate the question's purpose; adapt the wording to the user's
+conversation language without changing the consequence or approval boundary.
 
 | Feature | Useful follow-up | Consequence |
 | --- | --- | --- |
