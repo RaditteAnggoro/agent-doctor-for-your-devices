@@ -146,7 +146,7 @@ func publicValue(key, value string) bool {
 	case "product":
 		permitted = "Agent Doctor For Your Devices"
 	case "version":
-		permitted = "0.1.0|0.2.0"
+		permitted = "0.1.0|0.2.0|0.3.0"
 	case "schema_version":
 		permitted = "1.0|1|0.1.0"
 	case "feature", "selected_features":

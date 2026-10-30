@@ -4,18 +4,18 @@ Ask only where a concrete answer changes scope or interpretation.
 
 | Feature | Useful follow-up | Consequence |
 | --- | --- | --- |
-| Junk | “Do you still need this installer for offline use?” | Retain useful installers even when old. |
-| Junk | “Is this project active?” | Explain that rebuilds/downloads can be expensive; age is not inactivity evidence. |
-| Junk | “Inspect this exact path or save findings?” | Choose review detail without cleanup. |
-| Performance | “Was this process doing work you expected during the observation?” | One busy observation can be normal. |
-| Performance | “Would you like to focus the explanation on processes or startup references?” | Adjust report discussion; the current collector gathers both supported sources. |
-| Performance | “Is this a VM/container or the device itself?” | Correct the scope of metrics when detection is uncertain. |
-| Applications | “Do you recognize and still need this app?” | User context complements unknown usage; it does not create telemetry. |
-| Applications | “Does another tool depend on it?” | Preserve possible build/runtime dependencies. |
-| Applications | “Would official OS uninstall guidance help?” | Check the official method; eligible actions still require a separately reviewed exact-target plan. |
-| Duplicates | “Are these backups, sync folders or managed photo libraries?” | Explain intentional redundancy and propagation risks; protected paths remain excluded. |
-| Duplicates | “Which location is the copy you rely on?” | A suggested retain path is advisory; a later approved action must preserve an explicitly chosen verified member. |
-| Duplicates | “Reveal the containing folders for manual comparison?” | Print locations; do not launch file contents. |
+| Junk | “Installer ini masih kamu butuhkan buat instal ulang atau pakai offline?” | Retain useful installers even when old. |
+| Junk | “Proyek ini masih kamu pakai?” | Explain that rebuilds/downloads can be expensive; age is not inactivity evidence. |
+| Junk | “Mau lihat detail file ini atau simpan hasilnya dulu?” | Choose review detail without cleanup. |
+| Performance | “Pas dicek tadi, proses ini memang lagi kamu pakai buat kerja?” | One busy observation can be normal. |
+| Performance | “Mau kita bahas proses yang berjalan atau referensi startup dulu?” | Adjust report discussion; the current collector gathers both supported sources. |
+| Performance | “Ini perangkatnya langsung, atau kamu pakai VM/container?” | Correct the scope of metrics when detection is uncertain. |
+| Applications | “Kamu masih pakai aplikasi ini?” | User context complements unknown usage; it does not create telemetry. |
+| Applications | “Ada tool atau pekerjaan lain yang masih butuh aplikasi ini?” | Preserve possible build/runtime dependencies. |
+| Applications | “Mau aku bantu cek cara uninstall resminya?” | Check the official method; eligible actions still require a separately reviewed exact-target plan. |
+| Duplicates | “File ini bagian dari backup, folder sync, atau library foto aplikasi?” | Explain intentional redundancy and propagation risks; protected paths remain excluded. |
+| Duplicates | “Salinan di folder mana yang biasanya kamu pakai?” | A suggested retain path is advisory; a later approved action must preserve an explicitly chosen verified member. |
+| Duplicates | “Mau lihat lokasi foldernya supaya bisa kamu bandingkan?” | Print locations; do not launch file contents. |
 
 Exact duplicate analysis is implemented; similar-photo analysis is not. Do not offer
 an unavailable image matcher as though it can run. New scan roots and deeper limits

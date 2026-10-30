@@ -53,11 +53,39 @@ agent-doctor scan --feature performance
 agent-doctor scan --feature applications
 ```
 
-Interactive mode asks for OS first and confirms the detected execution environment.
+Version **0.3.0** starts a fresh interactive session with a friendly Bahasa Indonesia greeting,
+an optional nickname and an optional description of what you want help with.
+Then it asks about the device OS and confirms the detected execution environment.
 Noninteractive filesystem scans require explicit roots. `--all` never grants whole-disk
 permission. Inspect `doctor` output first; WSL, Crostini, remote and container scans
 require `--confirm-environment` to acknowledge their restricted scope. A Linux binary
 inside WSL does not measure Windows host health.
+
+A short example of the new conversation (illustrative; not a device scan):
+
+```text
+Agent Doctor: Hai, selamat datang di Agent Doctor!
+              Aku bantu kamu cek kondisi perangkat, pahami hasilnya,
+              dan pilih langkah berikutnya. Kita mulai pelan-pelan, ya.
+Agent Doctor: Biar enak ngobrol, aku panggil kamu siapa? Boleh dilewati.
+Kamu: Raka
+Agent Doctor: Lagi pengin dibantu apa? Misalnya perangkat lemot,
+              storage penuh, atau cuma mau cek rutin.
+Kamu: Storage-ku mulai penuh.
+Agent Doctor: Oke, Raka. Kita lanjut pilih perangkat dan bagian yang mau dicek.
+```
+
+Both intro questions are optional: press Enter or type `skip`/`lewati`. After that,
+use the numbered menu choices or their text aliases; clear `ya`/`yes` answers work
+for confirmation. You can type `batal`/`stop` to end the session. This casual wording
+does not approve a scan, storage or a deletion plan on your behalf.
+
+Nickname and issue text are used for the current conversation/process and are not
+copied into reports, exports, saved scan/review state or a profile. A new CLI process
+starts fresh. In an ongoing agent chat, switching features or resuming a review
+keeps the existing context without repeating the welcome/name questions. The skill
+uses informal aku/kamu language by default and follows a language preference you
+state. Technical reports and JSON fields retain their existing structured format.
 
 Without `--store`, the report goes to stdout and no session is saved. Add `--store`
 for later review, optionally with `--data-dir <private-folder>`. Saved reports contain
@@ -95,7 +123,7 @@ findings.
 | --- | --- | --- |
 | Junk | File metadata and old temporary/log/installer files and recognized cache paths | Age/size never proves disuse; sensitive/cloud/managed paths excluded |
 | Performance | Two cumulative CPU samples, visible RSS/working set, available system capacity, user startup references | Short observations; metrics vary by OS; no tuning or stopping |
-| Applications | Native app/package metadata with source/version where available | Last-use and dependency state usually unknown; no uninstall |
+| Applications | Native app/package metadata with source/version where available | Usage/dependencies may be unknown; inventory is read-only and actions are separate |
 | Duplicates | Size shortlist, streaming SHA-256, full-content verification and per-member metadata | Exact matches only; no similar-photo matcher or promised physical recovery |
 
 | Platform | Implemented scope | Verification limit |

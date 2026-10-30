@@ -12,6 +12,18 @@ or print those contents. OS metadata collectors read only supported local source
 Reading can update filesystem access times or hydrate files on unusual filesystems;
 cloud paths are conservatively excluded and physical storage savings are unknown.
 
+Interactive onboarding offers an optional preferred nickname and current issue.
+The CLI uses those answers for this process only. It does not copy intro text into
+report fields, exports, persisted scan/review state or a personal profile, including
+when `--store` is selected. Enter, `skip` and `lewati` let users pass either question;
+a new CLI process asks afresh. Existing chat context may supply the preferred name
+or issue, so an agent should not repeat a known answer.
+
+Names and issues are conversational data, not feature/root selection, saving consent
+or approval for an action plan. Terminal and agent clients may retain input,
+scrollback or conversation under their own policies; skipping both questions is
+available without changing scan capabilities.
+
 A scan prints its result; `--store` explicitly opts into local report/session storage.
 Use `--data-dir` to choose a private storage folder. Persisted reports contain exact
 paths and may identify apps or processes. Exports write only to the path you select.

@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/testkit"
 	"io"
 	"strings"
 	"testing"
@@ -15,11 +16,12 @@ func TestInteractiveSelectionOverridesFlags(t *testing.T) {
 	all := true
 	roots := listFlag{"old-scope"}
 	confirmed := false
-	input := strings.NewReader("detect\nyes\nduplicates\nreview\nchosen-scope\n")
+	scope := testkit.Dir(t)
+	input := strings.NewReader("\n\ndetect\nyes\nduplicates\nreview\n" + scope + "\n")
 	if err := onboard(context.Background(), input, &out, &feature, &all, &roots, &confirmed); err != nil {
 		t.Fatal(err)
 	}
-	if all || feature != "duplicates" || len(roots) != 1 || roots[0] != "chosen-scope" || !confirmed {
+	if all || feature != "duplicates" || len(roots) != 1 || roots[0] != scope || !confirmed {
 		t.Fatal("interactive change failed", all, feature, roots, confirmed)
 	}
 }

@@ -5,6 +5,19 @@ timezone, environment, requested scope, exclusions, feature coverage, warnings,
 collection method, elapsed time and actual changes. Missing measurements are null
 with a reason. Empty findings are meaningful only alongside completed coverage.
 
+A new interactive session greets the user in informal Bahasa Indonesia, offers an
+optional nickname and current issue, then continues to device, feature and scope
+selection. Enter or `skip`/`lewati` passes either intro question. Numbered choices
+and supported text aliases are accepted, and `ya`/`yes` can confirm a pending
+read-only choice. `batal`/`stop` ends onboarding. Intro answers do not supply any
+scope, storage consent or plan approval.
+
+The preferred name and issue are not part of the report schema, JSON/CSV exports,
+saved scan/review state or a user profile. Reports still distinguish measurements,
+sources, limitations and decision blockers. An ongoing agent chat can retain its
+conversational context without repeating the greeting on a feature change or resume.
+Separate experimental actions still require their exact reviewed plan hash.
+
 Findings use `J-`, `P-`, `A-` and `D-` identifiers. Junk explains category, age and
 consequences. Performance records observed metrics and sampling semantics.
 Applications record inventory provenance and unknown usage. Duplicates record a

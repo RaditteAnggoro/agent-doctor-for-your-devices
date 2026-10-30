@@ -37,6 +37,9 @@ import (
 const help = `Agent Doctor For Your Devices — Scan first. Understand everything. Decide yourself.
 Scans are read-only. Experimental action plans require separate exact-target approval.
 
+Mau mulai ngobrol? Jalankan agent-doctor scan --interactive.
+Nama panggilan dan keluhan boleh dilewati dengan Enter, skip, atau lewati.
+
 agent-doctor doctor | version | about
 agent-doctor scan --interactive
 agent-doctor scan --all --read-only --scope DIR [--scope DIR] [--store]
@@ -148,7 +151,7 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 	format := fs.String("format", "markdown", "markdown, json or csv")
 	feature := fs.String("feature", "", "comma-separated scan features; single report feature")
 	all := fs.Bool("all", false, "all four features")
-	interactive := fs.Bool("interactive", false, "guided onboarding")
+	interactive := fs.Bool("interactive", false, "ngobrol singkat, lalu pilih pemeriksaan")
 	store := fs.Bool("store", false, "write session report")
 	_ = fs.Bool("read-only", true, "all operations are read-only toward targets")
 	confirmEnv := fs.Bool("confirm-environment", false, "confirm execution environment is the target")
@@ -189,7 +192,7 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 			in = bufio.NewReaderSize(in, 8193)
 			if err := onboard(ctx, in, stderr, feature, all, &roots, confirmEnv); err != nil {
 				if errors.Is(err, context.Canceled) {
-					fmt.Fprintln(stderr, "Cancelled. 0 files removed, 0 apps uninstalled, 0 processes stopped.")
+					fmt.Fprintln(stderr, "Oke, kita berhenti di sini. 0 file dihapus, 0 aplikasi di-uninstall, 0 proses dihentikan.")
 					return 130
 				}
 				return errCode(stderr, 64, err)
@@ -252,11 +255,13 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 			return errCode(stderr, 64, errors.New("CSV requires a single --feature"))
 		}
 		if *interactive {
-			fmt.Fprintf(stderr, "Confirm read-only scan: host=%s execution=%s environment=%s features=%v roots=%q exclusions=%q max-files=%d max-depth=%d max-bytes=%d timeout=%s sample-duration=%s store=%t data-dir=%q. Start? yes/no\n", env.HostOS, env.OS, env.Type, features, scope.Roots, scope.Exclusions, *maxFiles, *maxDepth, *maxBytes, *timeout, *sampleDuration, *store, *dataDir)
+			if err := interactiveSummary(stderr, env, features, scope, *timeout, *sampleDuration, *store, *dataDir); err != nil {
+				return errCode(stderr, 64, err)
+			}
 			// onboard returns a buffered reader so prefetched input remains available.
 			answer, err := readAnswer(ctx, in)
-			if err != nil || strings.ToLower(answer) != "yes" {
-				fmt.Fprintln(stderr, "Cancelled. 0 files removed, 0 apps uninstalled, 0 processes stopped.")
+			if err != nil || !affirmative(answer) {
+				fmt.Fprintln(stderr, "Oke, kita berhenti di sini. 0 file dihapus, 0 aplikasi di-uninstall, 0 proses dihentikan.")
 				return 130
 			}
 		}
@@ -269,7 +274,11 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 		}
 		zone, _ := time.Now().Zone()
 		report := findings.Report{SchemaVersion: "1.0", Product: buildinfo.ProductName, Version: buildinfo.Version, ScanID: "scan-" + hex.EncodeToString(idBytes[:]), Timestamp: start.UTC(), DisplayTimezone: zone, Environment: env, Scope: scope, SelectedFeatures: features, Method: "read-only-v1", Permissions: "current user only; no escalation", AccuracyNotes: []string{"No changes to file contents, applications or processes. Filesystem access time may be updated by the OS when reading.", "Unknown measurements remain null; snapshot evidence can become stale."}, Results: []findings.Result{}}
-		fmt.Fprintln(stderr, "Scanning the selected execution environment in read-only mode; limits and exclusions apply.")
+		if *interactive {
+			fmt.Fprintln(stderr, "Sip, aku mulai cek sesuai pilihan tadi. Hasilnya muncul setelah selesai.")
+		} else {
+			fmt.Fprintln(stderr, "Scanning the selected execution environment in read-only mode; limits and exclusions apply.")
+		}
 		var inventory *scanner.Inventory
 		if walkNeeded {
 			inventory = scanner.Walk(scanCtx, scope)
@@ -549,73 +558,6 @@ func export(r findings.Report, format, feature string, share bool, path string) 
 		return werr
 	}
 	return cerr
-}
-func onboard(ctx context.Context, in io.Reader, out io.Writer, feature *string, all *bool, roots *listFlag, confirmed *bool) error {
-	if _, ok := in.(*bufio.Reader); !ok {
-		in = bufio.NewReaderSize(in, 8193)
-	}
-	ask := func(question string) (string, error) {
-		fmt.Fprintln(out, question)
-		v, err := readAnswer(ctx, in)
-		if err != nil {
-			return "", err
-		}
-		switch strings.ToLower(v) {
-		case "cancel", "stop", "stop everything", "later", "postpone":
-			return "", context.Canceled
-		}
-		return v, nil
-	}
-	choice, err := ask("Which device OS do you want to review: macOS, Windows, Linux, ChromeOS, or Detect for me?")
-	if err != nil {
-		return err
-	}
-	expected := map[string]string{"macos": "darwin", "windows": "windows", "linux": "linux", "chromeos": "chromeos", "detect for me": "", "detect": ""}
-	target, ok := expected[strings.ToLower(choice)]
-	if !ok {
-		return errors.New("ambiguous OS response; no scan started")
-	}
-	env := discovery.Detect()
-	answer, err := ask(fmt.Sprintf("Detected host=%s, execution OS=%s, environment=%s, remote=%t. Is this the environment to inspect? yes/no", env.HostOS, env.OS, env.Type, env.Remote))
-	if err != nil {
-		return err
-	}
-	if strings.ToLower(answer) != "yes" {
-		return context.Canceled
-	}
-	if target != "" && target != env.HostOS && target != env.OS {
-		return errors.New("selected target differs from detected environment; run the CLI on that device")
-	}
-	*confirmed = true
-	f, err := ask("Which features: junk, performance, applications, duplicates (comma-separated), or all?")
-	if err != nil {
-		return err
-	}
-	if strings.ToLower(f) == "all" {
-		*all = true
-		*feature = ""
-	} else {
-		*all = false
-		*feature = strings.ToLower(f)
-	}
-	mode, err := ask("Choose scan + guided manual review (default: review), or report only: review/report")
-	if err != nil {
-		return err
-	}
-	if mode != "" && mode != "review" && mode != "report" {
-		return errors.New("ambiguous mode; no scan started")
-	}
-	if *all || strings.Contains(*feature, "junk") || strings.Contains(*feature, "duplicates") {
-		path, err := ask("Enter one approved directory to scan (protected, cloud, links and nested mounts are skipped):")
-		if err != nil {
-			return err
-		}
-		if path == "" {
-			return errors.New("scope required")
-		}
-		*roots = listFlag{path}
-	}
-	return nil
 }
 
 func readAnswer(ctx context.Context, in io.Reader) (string, error) {

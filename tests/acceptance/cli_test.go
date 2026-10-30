@@ -75,12 +75,12 @@ func TestNoScopeAndAmbiguousOnboarding(t *testing.T) {
 	if code, _, _ := run(t, "", "scan", "--all", "--confirm-environment"); code != 64 {
 		t.Fatal("implicit whole-disk permission")
 	}
-	code, _, err := run(t, "maybe\n", "scan", "--interactive")
-	if code != 64 || !strings.HasPrefix(err, "Which device OS") {
+	code, _, err := run(t, "\n\nmaybe\nbatal\n", "scan", "--interactive")
+	if code != 130 || !strings.Contains(err, "belum nangkap pilihan OS") || strings.Contains(err, "Sip, aku mulai cek") {
 		t.Fatal(code, err)
 	}
 	code, _, err = run(t, "cancel\n", "scan", "--interactive")
-	if code != 130 || !strings.Contains(err, "0 files removed") {
+	if code != 130 || !strings.Contains(err, "0 file dihapus") {
 		t.Fatal(code, err)
 	}
 }
@@ -198,5 +198,63 @@ func TestNativeCLIActionJournalAndReplay(t *testing.T) {
 	}
 	if _, e := os.Stat(path); e != nil {
 		t.Fatal("replay executed again")
+	}
+}
+
+func TestInteractiveIntroStaysOutOfSavedReport(t *testing.T) {
+	dir := testkit.Dir(t)
+	store := testkit.Dir(t)
+	file := testkit.File(t, dir, "old.tmp", "synthetic file")
+	old := time.Now().Add(-90 * 24 * time.Hour)
+	if err := os.Chtimes(file, old, old); err != nil {
+		t.Fatal(err)
+	}
+	name := "TemanUjiRahasia"
+	issue := "KonteksUjiRahasia"
+	input := name + "\n" + issue + "\n5\nya\n1\n1\n" + dir + "\nya\n"
+	code, out, errs := run(t, input, "scan", "--interactive", "--store", "--data-dir", store, "--format", "json")
+	if code != 0 {
+		t.Fatal(code, errs)
+	}
+	var report findings.Report
+	if err := json.Unmarshal([]byte(out), &report); err != nil {
+		t.Fatal("interactive chatter entered JSON stdout", err)
+	}
+	if len(report.SelectedFeatures) != 1 || report.SelectedFeatures[0] != "junk" || len(report.Scope.Roots) != 1 || report.Scope.Roots[0] != dir {
+		t.Fatal("wrong scope or feature")
+	}
+	if strings.Contains(out, name) || strings.Contains(out, issue) {
+		t.Fatal("intro leaked into report")
+	}
+	if !strings.Contains(errs, name) || !strings.Contains(errs, "Sip, aku mulai cek") {
+		t.Fatal("greeting or progress missing", errs)
+	}
+	entries, err := os.ReadDir(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		b, err := os.ReadFile(filepath.Join(store, entry.Name()))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(b), name) || strings.Contains(string(b), issue) {
+			t.Fatal("intro persisted in session storage")
+		}
+	}
+}
+func TestIntroYesDoesNotReplaceFinalScanConfirmation(t *testing.T) {
+	dir := testkit.Dir(t)
+	storage := filepath.Join(testkit.Dir(t), "not-created")
+	input := "ya\nya\n5\nya\n1\n1\n" + dir + "\ntidak\n"
+	code, out, errs := run(t, input, "scan", "--interactive", "--store", "--data-dir", storage, "--format", "json")
+	if code != 130 || out != "" || strings.Contains(errs, "Sip, aku mulai cek") {
+		t.Fatal("intro accepted as scan approval", code, out, errs)
+	}
+	if _, err := os.Stat(storage); !os.IsNotExist(err) {
+		t.Fatal("saved session before final confirmation")
 	}
 }
