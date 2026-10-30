@@ -8,12 +8,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/findings"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/platforms"
@@ -25,6 +25,7 @@ type app struct {
 	name, version, location, source string
 	size                            *int64
 	sizeMethod                      string
+	details                         findings.Application
 }
 
 func Collect(ctx context.Context, env findings.Environment) findings.Result {
@@ -87,7 +88,42 @@ func appFinding(a app, osName string) findings.Finding {
 	if osName == "windows" {
 		method = "Use Windows Settings > Apps > Installed apps; inspect the app's official uninstall flow and dependencies."
 	}
-	return findings.Finding{Feature: "applications", Title: a.name, Paths: paths, Risk: "UNKNOWN", Confidence: "MEDIUM", Recommendation: "INSPECT", WhyFlagged: "Installed metadata available for manual inventory review; no evidence that this application is unused.", Evidence: []string{"Metadata source: " + a.source, "Usage evidence: UNKNOWN; ask whether this app supports an active workflow."}, Limitations: []string{"Inventory may include system libraries, dependencies and multiple package records.", "Unknown usage is not evidence of disuse; related services and runtime dependencies were not inferred."}, PossibleConsequences: "Uninstalling manually may remove tools needed by other applications or disrupt active work.", ManualInspection: "Review the name, source and version, then ask whether the user recognizes and still needs it. " + method, Application: &findings.Application{Name: a.name, Version: version, Location: location, Source: a.source, InstallSizeBytes: a.size, SizeMethod: a.sizeMethod, UsageProvenance: "UNKNOWN: no reliable last-launch telemetry collected", RelatedServices: []string{}, DependencyNotes: "UNKNOWN; consult the source package manager/vendor before manual uninstall.", UninstallMethod: method}}
+	info := a.details
+	info.Name, info.Version, info.Location, info.Source = a.name, version, location, a.source
+	info.InstallSizeBytes, info.SizeMethod = a.size, a.sizeMethod
+	if info.SizeStatus == "" {
+		info.SizeStatus = "UNKNOWN"
+		if a.size != nil {
+			info.SizeStatus = "ESTIMATED"
+		}
+	}
+	if info.AppRole == "" {
+		info.AppRole = "UNKNOWN"
+	}
+	if info.UsageStatus == "" {
+		info.UsageStatus = "UNKNOWN"
+	}
+	if info.UsageProvenance == "" {
+		info.UsageProvenance = "UNKNOWN: no reliable last-launch telemetry collected"
+	}
+	if info.UsageReason == "" {
+		info.UsageReason = "No supported usage-history collector for this inventory source; unknown does not mean unused."
+	}
+	if info.RunningReason == "" {
+		info.RunningReason = "Running state was not collected for this inventory source."
+	}
+	info.RelatedServices = []string{}
+	info.DependencyNotes = "UNKNOWN; bundle namespace/name similarities are review hints, not dependency proof. Consult the source package manager/vendor before manual uninstall."
+	info.UninstallMethod = method
+	risk, recommendation := "UNKNOWN", "INSPECT"
+	if info.SystemApp != nil && *info.SystemApp {
+		risk, recommendation = "PROTECTED", "DO_NOT_TOUCH"
+	}
+	evidence := []string{"Metadata source: " + a.source, "Size method: " + info.SizeMethod, "Usage source: " + info.UsageProvenance, "Usage interpretation: " + info.UsageReason, "Running evidence: " + info.RunningReason}
+	if info.AppRole == "HELPER" || info.AppRole == "UNINSTALLER" {
+		evidence = append(evidence, "Name-based component role hint: "+info.AppRole+"; review with its parent product rather than independently removing it.")
+	}
+	return findings.Finding{Feature: "applications", Title: a.name, Paths: paths, Risk: risk, Confidence: "MEDIUM", Recommendation: recommendation, WhyFlagged: "Installed application metadata for user review; activity and workflow needs require separate evidence.", Evidence: evidence, Limitations: []string{"Logical bundle size excludes external app data, caches and shared runtimes; it is not promised physical storage recovery.", "Inventory may include system libraries, dependencies and multiple package records.", "Unknown or old launch metadata does not establish disuse; filesystem modification time is not installation/update time.", "Related-app namespace hints are capped at 20 records and do not prove dependency. Measurements are not atomic snapshots."}, PossibleConsequences: "Uninstalling manually may remove tools needed by other applications, disrupt active work, require reinstallation or affect access to locally stored app data.", ManualInspection: "Review size completeness, launch-source limitations, running state and system/component role. Confirm data backup, workflow needs and the vendor's official uninstall process. " + method, Application: &info}
 }
 
 func macApps(ctx context.Context, r *findings.Result) []app {
@@ -95,64 +131,9 @@ func macApps(ctx context.Context, r *findings.Result) []app {
 	if home, e := os.UserHomeDir(); e == nil {
 		roots = append(roots, filepath.Join(home, "Applications"))
 	}
-	apps := []app{}
-	for _, dir := range roots {
-		if ctx.Err() != nil {
-			break
-		}
-		st, e := os.Lstat(dir)
-		if os.IsNotExist(e) {
-			continue
-		}
-		if e != nil || !st.IsDir() || st.Mode()&os.ModeSymlink != 0 {
-			r.Coverage.Inaccessible++
-			r.Warnings = append(r.Warnings, "App metadata directory inaccessible or linked: "+dir)
-			continue
-		}
-		root, e := platforms.OpenMetadataDirectory(dir)
-		if e != nil {
-			r.Coverage.Inaccessible++
-			continue
-		}
-		f, e := root.Open(".")
-		if e != nil {
-			root.Close()
-			continue
-		}
-		for len(apps) < maxApps && ctx.Err() == nil {
-			entries, e := f.ReadDir(100)
-			for _, entry := range entries {
-				if len(apps) >= maxApps {
-					break
-				}
-				if !strings.HasSuffix(strings.ToLower(entry.Name()), ".app") || !entry.IsDir() || entry.Type()&os.ModeSymlink != 0 {
-					continue
-				}
-				a := app{name: strings.TrimSuffix(entry.Name(), ".app"), location: filepath.Join(dir, entry.Name()), source: "macOS app bundle", sizeMethod: "UNKNOWN: bundle footprint is not recursively measured"}
-				// os.Root confines Info.plist reads even if a bundle changes after discovery.
-				if info, err := root.Open(filepath.Join(entry.Name(), "Contents", "Info.plist")); err == nil {
-					b, err := io.ReadAll(io.LimitReader(info, 256<<10+1))
-					info.Close()
-					if err == nil && len(b) <= 256<<10 {
-						values := plistStrings(b)
-						a.version = values["CFBundleShortVersionString"]
-						if n := values["CFBundleDisplayName"]; n != "" {
-							a.name = n
-						}
-					}
-				}
-				apps = append(apps, a)
-			}
-			if e != nil {
-				break
-			}
-		}
-		f.Close()
-		root.Close()
-	}
-	r.Warnings = append(r.Warnings, "macOS inventory covers immediate .app children only. Nested apps, binary plist versions, app receipts, last use and bundle sizes may be unavailable.")
-	return apps
+	return macAppsFromRoots(ctx, r, roots, platforms.Run, time.Now())
 }
+
 func plistStrings(b []byte) map[string]string {
 	out := map[string]string{}
 	d := xml.NewDecoder(strings.NewReader(string(b)))

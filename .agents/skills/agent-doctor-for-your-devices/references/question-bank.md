@@ -12,9 +12,9 @@ Ask only where a concrete answer changes scope or interpretation.
 | Performance | “Is this a VM/container or the device itself?” | Correct the scope of metrics when detection is uncertain. |
 | Applications | “Do you recognize and still need this app?” | User context complements unknown usage; it does not create telemetry. |
 | Applications | “Does another tool depend on it?” | Preserve possible build/runtime dependencies. |
-| Applications | “Would official OS uninstall guidance help?” | Explain informational UI steps; never uninstall. |
+| Applications | “Would official OS uninstall guidance help?” | Check the official method; eligible actions still require a separately reviewed exact-target plan. |
 | Duplicates | “Are these backups, sync folders or managed photo libraries?” | Explain intentional redundancy and propagation risks; protected paths remain excluded. |
-| Duplicates | “Which location is the copy you rely on?” | A suggested retain path is advisory; retain every copy in v1. |
+| Duplicates | “Which location is the copy you rely on?” | A suggested retain path is advisory; a later approved action must preserve an explicitly chosen verified member. |
 | Duplicates | “Reveal the containing folders for manual comparison?” | Print locations; do not launch file contents. |
 
 Exact duplicate analysis is implemented; similar-photo analysis is not. Do not offer

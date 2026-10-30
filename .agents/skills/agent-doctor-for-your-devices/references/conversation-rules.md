@@ -19,7 +19,7 @@ through keyword matching alone; “don't cancel” is not `CANCEL`.
 | SCOPE_CHANGE | “Actually, duplicates only” | Update next-scan features; confirm roots/limits affected. Preserve existing reports as history. |
 | POSTPONE | “I'll review later” | Stop prompting. Save only if previously allowed; otherwise explain that no session was saved. |
 | CANCEL | “Stop everything” | Interrupt current work; preserve existing saved evidence; mark incomplete results cancelled. No new scan. |
-| SAFETY_CONFLICT | “Delete everything” | Explain v1 is review-only; offer inspection or a report without executing cleanup. |
+| SAFETY_CONFLICT | “Delete everything” | Ask for exact targets and review evidence; broad cleanup language never approves an undisclosed phase-2 plan. |
 
 After a related answer or off-topic exchange, resume exactly one pending question.
 Do not restart onboarding or substitute new defaults. A scan ID describes evidence,

@@ -21,3 +21,9 @@ func Owned(info os.FileInfo) bool {
 	st, ok := info.Sys().(*syscall.Stat_t)
 	return ok && int(st.Uid) == os.Geteuid()
 }
+
+// TrustedSystemParent is used only for the root-owned /Applications directory.
+func TrustedSystemParent(info os.FileInfo) bool {
+	st, ok := info.Sys().(*syscall.Stat_t)
+	return ok && st.Uid == 0 && info.Mode().Perm()&0002 == 0
+}

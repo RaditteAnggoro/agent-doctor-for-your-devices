@@ -23,3 +23,12 @@ not establish private NTFS ACLs, so choose a user-private directory.
 output yourself: feature counts, byte sizes and timing can still be sensitive.
 No redaction can guarantee anonymity. Delete saved report/session files manually
 when no longer needed; the CLI has no hidden retention or upload service.
+
+## Version 0.2 decision evidence and actions
+
+Scans remain read-only and now include decision-oriented evidence. Experimental
+phase2 is a separate opt-in path; see [ACTIONS.md](ACTIONS.md) for supported native
+macOS Trash/bundle-only uninstall, exact approval, persistence, recovery and residual
+races. Read legacy v1 restrictions above as scan behavior; they do not describe the
+new separately approved action boundary. Windows/Linux action execution remains
+unsupported. Never use personal reports or real app data as development fixtures.

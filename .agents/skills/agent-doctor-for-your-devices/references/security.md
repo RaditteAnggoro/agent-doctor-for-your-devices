@@ -16,6 +16,8 @@ Report permission failures and missing sources honestly. Read-only hashing can
 change access times and may have filesystem side effects; do not claim immutable
 snapshots or exact physical storage recovery.
 
-A request to delete does not enable an unavailable cleanup executor. Offer a report
-or official manual review. For a suspected security defect, keep the reproduction
+A request to delete starts exact-target review; it does not approve an undisclosed
+action plan. Use only the experimental plan/apply path in actions.md after the user
+has reviewed and approved that particular plan. Never use another tool as a fallback
+for a rejected action or permanently delete instead of native Trash. For a suspected security defect, keep the reproduction
 synthetic and use the repository SECURITY.md process.

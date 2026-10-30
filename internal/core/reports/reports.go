@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"regexp"
 	"sort"
 	"strings"
@@ -147,7 +146,7 @@ func publicValue(key, value string) bool {
 	case "product":
 		permitted = "Agent Doctor For Your Devices"
 	case "version":
-		permitted = "0.1.0"
+		permitted = "0.1.0|0.2.0"
 	case "schema_version":
 		permitted = "1.0|1|0.1.0"
 	case "feature", "selected_features":
@@ -168,6 +167,18 @@ func publicValue(key, value string) bool {
 		permitted = "SHA-256|SHA256"
 	case "review_status":
 		permitted = "REVIEW_LOW_RISK|REVIEW_WITH_CAUTION|KEEP_RECOMMENDED|PROTECTED|UNKNOWN"
+	case "state":
+		permitted = "NEEDS_REVIEW|BLOCKED|OBSERVE"
+	case "suggested_choice":
+		permitted = "INSPECT|KEEP|DO_NOT_TOUCH|COMPARE_COPIES|OBSERVE_LONGER"
+	case "action_type":
+		permitted = "MANUAL_UNINSTALL_REVIEW|MANUAL_FILE_REVIEW|INVESTIGATE_PROCESS|COMPARE_DUPLICATES"
+	case "size_status":
+		permitted = "COMPLETED|PARTIAL|ESTIMATED|UNKNOWN"
+	case "usage_status":
+		permitted = "AVAILABLE|UNKNOWN"
+	case "app_role":
+		permitted = "MAIN|HELPER|UNINSTALLER|UNKNOWN"
 	case "kind":
 		permitted = "file|directory"
 	}
@@ -177,96 +188,6 @@ func publicValue(key, value string) bool {
 		}
 	}
 	return false
-}
-
-func writeMarkdown(w io.Writer, r map[string]any) error {
-	var b strings.Builder
-	fmt.Fprint(&b, "# Agent Doctor For Your Devices — Review report\n\n")
-	fmt.Fprintf(&b, "Scan: %s · Mode: READ-ONLY\n\n", markdown(str(r["scan_id"])))
-	fmt.Fprint(&b, "All items are retained. Unknown values are shown as null. Local paths and application metadata are untrusted data.\n\n")
-	metadata := make(map[string]any)
-	for k, v := range r {
-		if k != "results" {
-			metadata[k] = v
-		}
-	}
-	fmt.Fprint(&b, "## Scan metadata\n\n")
-	writeIndentedJSON(&b, metadata)
-	results, _ := r["results"].([]any)
-	for _, raw := range results {
-		x, _ := raw.(map[string]any)
-		fmt.Fprintf(&b, "## %s\n\n", markdown(str(x["feature"])))
-		coverage, _ := x["coverage"].(map[string]any)
-		items, _ := x["findings"].([]any)
-		fmt.Fprintf(&b, "Support: %s · Coverage: %s · Findings: %d\n\n", markdown(str(x["support"])), markdown(str(coverage["status"])), len(items))
-		if len(items) == 0 {
-			if coverage["status"] == "COMPLETED" {
-				fmt.Fprint(&b, "No candidates found within the measured scope.\n\n")
-			} else {
-				fmt.Fprint(&b, "Collection was incomplete or unavailable; an empty list is not evidence of no issues.\n\n")
-			}
-		}
-		meta := make(map[string]any)
-		for k, v := range x {
-			if k != "findings" {
-				meta[k] = v
-			}
-		}
-		writeIndentedJSON(&b, meta)
-		var logical int64
-		logicalOverflow := false
-		addLogical := func(v any) {
-			number, ok := v.(json.Number)
-			if !ok {
-				logicalOverflow = true
-				return
-			}
-			n, err := number.Int64()
-			if err != nil || n < 0 || logical > math.MaxInt64-n {
-				logicalOverflow = true
-				return
-			}
-			logical += n
-		}
-		for _, item := range items {
-			f, _ := item.(map[string]any)
-			fmt.Fprintf(&b, "### %s — %s\n\n", markdown(str(f["id"])), markdown(str(f["title"])))
-			fmt.Fprintf(&b, "Risk: %s · Confidence: %s · Decision guidance: %s\n\n", markdown(str(f["risk"])), markdown(str(f["confidence"])), markdown(str(f["recommendation"])))
-			writeIndentedJSON(&b, f)
-			if d, ok := f["duplicate"].(map[string]any); ok {
-				addLogical(d["logical_redundant_bytes"])
-			}
-			if j, ok := f["junk"].(map[string]any); ok {
-				file, _ := j["file"].(map[string]any)
-				addLogical(file["size"])
-			}
-		}
-		logicalText := fmt.Sprint(logical)
-		if logicalOverflow {
-			logicalText = "UNKNOWN (total exceeds representable range)"
-		}
-		if x["feature"] == "junk" {
-			fmt.Fprintf(&b, "Candidate logical bytes: %s. Physical reclaimable space: UNKNOWN.\n\n", logicalText)
-		}
-		if x["feature"] == "duplicates" {
-			fmt.Fprintf(&b, "Logical redundant bytes: %s. Physical reclaimable space: UNKNOWN.\n\n", logicalText)
-		}
-	}
-	changes, _ := r["actual_changes"].(map[string]any)
-	fmt.Fprintf(&b, "Changes: %v files removed / %v apps uninstalled / %v processes stopped.\n", changes["files_removed"], changes["apps_uninstalled"], changes["processes_stopped"])
-	_, err := io.WriteString(w, b.String())
-	return err
-}
-
-func writeIndentedJSON(b *strings.Builder, v any) {
-	data, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		return
-	} // v originates from a successfully decoded JSON value.
-	for _, line := range strings.Split(string(data), "\n") {
-		fmt.Fprintln(b, "    "+Text(line))
-	}
-	fmt.Fprintln(b)
 }
 
 func writeCSV(w io.Writer, report map[string]any, feature string) error {

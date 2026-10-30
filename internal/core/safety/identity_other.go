@@ -11,3 +11,5 @@ func Identity(info os.FileInfo) (string, string, bool, *bool) { return "", "", f
 // Native Windows scans are constrained by the current user's access token.
 // Ownership attribution is not available in this portable collector.
 func Owned(info os.FileInfo) bool { return true }
+
+func TrustedSystemParent(info os.FileInfo) bool { return false }

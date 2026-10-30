@@ -37,3 +37,12 @@ No permission bypass or root/admin scan is required.
 Cross-compilation and generic Linux CI do not replace this manual device test.
 
 On Windows the portable collector cannot measure external hardlink counts or file identities from metadata; link-count, sparse and clone flags remain null when unknown. Discovered hardlinks are deduplicated with OS file-identity comparisons, bounded to 1024 identity-unknown files per size bucket. Additional files are skipped with PARTIAL coverage.
+
+## Version 0.2 decision evidence and actions
+
+Scans remain read-only and now include decision-oriented evidence. Experimental
+phase2 is a separate opt-in path; see [ACTIONS.md](ACTIONS.md) for supported native
+macOS Trash/bundle-only uninstall, exact approval, persistence, recovery and residual
+races. Read legacy v1 restrictions above as scan behavior; they do not describe the
+new separately approved action boundary. Windows/Linux action execution remains
+unsupported. Never use personal reports or real app data as development fixtures.

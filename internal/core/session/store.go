@@ -72,7 +72,9 @@ func (s *Store) open(create bool) (*os.Root, error) {
 		info, err := r.Lstat(part)
 		if errors.Is(err, fs.ErrNotExist) && create {
 			if err = r.Mkdir(part, 0700); err == nil {
-				info, err = r.Lstat(part)
+				if err = syncDirectory(r); err == nil {
+					info, err = r.Lstat(part)
+				}
 			}
 		}
 		if err != nil {
@@ -361,5 +363,20 @@ func atomicWrite(r *os.Root, name string, v any) error {
 	if err := r.Rename(tmp, name); err != nil {
 		return fmt.Errorf("save session: %w", err)
 	}
-	return nil
+	return syncDirectory(r)
+}
+
+// Sync both file content and directory entry before actions may be dispatched.
+// Windows scan/report storage uses its normal filesystem semantics; action
+// execution there remains unsupported rather than claiming this Unix guarantee.
+func syncDirectory(r *os.Root) error {
+	if runtime.GOOS == "windows" {
+		return nil
+	}
+	f, err := r.Open(".")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return f.Sync()
 }

@@ -201,6 +201,102 @@
             "review_status"
           ],
           "additionalProperties": false
+        },
+        "decision": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "NEEDS_REVIEW",
+                "BLOCKED",
+                "OBSERVE"
+              ]
+            },
+            "suggested_choice": {
+              "enum": [
+                "INSPECT",
+                "KEEP",
+                "DO_NOT_TOUCH",
+                "COMPARE_COPIES",
+                "OBSERVE_LONGER"
+              ]
+            },
+            "action_type": {
+              "enum": [
+                "MANUAL_UNINSTALL_REVIEW",
+                "MANUAL_FILE_REVIEW",
+                "INVESTIGATE_PROCESS",
+                "COMPARE_DUPLICATES"
+              ]
+            },
+            "reasons": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "missing_evidence": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "action_blockers": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "questions": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "next_steps": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "potential_logical_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "required": [
+            "state",
+            "suggested_choice",
+            "action_type",
+            "reasons",
+            "missing_evidence",
+            "action_blockers",
+            "questions",
+            "next_steps",
+            "potential_logical_bytes"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -388,6 +484,33 @@
             },
             "observed_impact": {
               "type": "string"
+            },
+            "logical_cpus": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "memory_free_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "memory_compressed_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "memory_pressure_level": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "memory_pressure_reason": {
+              "type": "string"
             }
           },
           "required": [
@@ -408,6 +531,102 @@
             "running",
             "dependency_notes",
             "observed_impact"
+          ],
+          "additionalProperties": false
+        },
+        "decision": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "NEEDS_REVIEW",
+                "BLOCKED",
+                "OBSERVE"
+              ]
+            },
+            "suggested_choice": {
+              "enum": [
+                "INSPECT",
+                "KEEP",
+                "DO_NOT_TOUCH",
+                "COMPARE_COPIES",
+                "OBSERVE_LONGER"
+              ]
+            },
+            "action_type": {
+              "enum": [
+                "MANUAL_UNINSTALL_REVIEW",
+                "MANUAL_FILE_REVIEW",
+                "INVESTIGATE_PROCESS",
+                "COMPARE_DUPLICATES"
+              ]
+            },
+            "reasons": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "missing_evidence": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "action_blockers": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "questions": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "next_steps": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "potential_logical_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "required": [
+            "state",
+            "suggested_choice",
+            "action_type",
+            "reasons",
+            "missing_evidence",
+            "action_blockers",
+            "questions",
+            "next_steps",
+            "potential_logical_bytes"
           ],
           "additionalProperties": false
         }
@@ -575,6 +794,74 @@
             },
             "uninstall_method": {
               "type": "string"
+            },
+            "bundle_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "app_role": {
+              "enum": [
+                "MAIN",
+                "HELPER",
+                "UNINSTALLER",
+                "UNKNOWN"
+              ]
+            },
+            "system_app": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "size_status": {
+              "enum": [
+                "COMPLETED",
+                "PARTIAL",
+                "ESTIMATED",
+                "UNKNOWN"
+              ]
+            },
+            "size_entries": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "size_limitations": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "usage_status": {
+              "enum": [
+                "AVAILABLE",
+                "UNKNOWN"
+              ]
+            },
+            "usage_reason": {
+              "type": "string"
+            },
+            "running_reason": {
+              "type": "string"
+            },
+            "bundle_modified_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "related_apps": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           },
           "required": [
@@ -592,6 +879,102 @@
             "related_services",
             "dependency_notes",
             "uninstall_method"
+          ],
+          "additionalProperties": false
+        },
+        "decision": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "NEEDS_REVIEW",
+                "BLOCKED",
+                "OBSERVE"
+              ]
+            },
+            "suggested_choice": {
+              "enum": [
+                "INSPECT",
+                "KEEP",
+                "DO_NOT_TOUCH",
+                "COMPARE_COPIES",
+                "OBSERVE_LONGER"
+              ]
+            },
+            "action_type": {
+              "enum": [
+                "MANUAL_UNINSTALL_REVIEW",
+                "MANUAL_FILE_REVIEW",
+                "INVESTIGATE_PROCESS",
+                "COMPARE_DUPLICATES"
+              ]
+            },
+            "reasons": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "missing_evidence": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "action_blockers": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "questions": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "next_steps": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "potential_logical_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "required": [
+            "state",
+            "suggested_choice",
+            "action_type",
+            "reasons",
+            "missing_evidence",
+            "action_blockers",
+            "questions",
+            "next_steps",
+            "potential_logical_bytes"
           ],
           "additionalProperties": false
         }
@@ -797,6 +1180,102 @@
             "logical_redundant_bytes",
             "physical_reclaimable_bytes",
             "backup_warning"
+          ],
+          "additionalProperties": false
+        },
+        "decision": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "NEEDS_REVIEW",
+                "BLOCKED",
+                "OBSERVE"
+              ]
+            },
+            "suggested_choice": {
+              "enum": [
+                "INSPECT",
+                "KEEP",
+                "DO_NOT_TOUCH",
+                "COMPARE_COPIES",
+                "OBSERVE_LONGER"
+              ]
+            },
+            "action_type": {
+              "enum": [
+                "MANUAL_UNINSTALL_REVIEW",
+                "MANUAL_FILE_REVIEW",
+                "INVESTIGATE_PROCESS",
+                "COMPARE_DUPLICATES"
+              ]
+            },
+            "reasons": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "missing_evidence": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "action_blockers": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "questions": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "next_steps": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "potential_logical_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "required": [
+            "state",
+            "suggested_choice",
+            "action_type",
+            "reasons",
+            "missing_evidence",
+            "action_blockers",
+            "questions",
+            "next_steps",
+            "potential_logical_bytes"
           ],
           "additionalProperties": false
         }

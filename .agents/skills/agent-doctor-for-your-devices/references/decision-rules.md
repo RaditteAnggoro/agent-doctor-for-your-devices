@@ -16,11 +16,12 @@ the OS monitor. Never stop a process or disable startup entries.
 
 **Applications:** inventory is evidence of installation, not disuse. Unknown last-use
 and running state remain unknown. Source, version and dependency notes qualify review.
-Uninstall guidance is informational and uses the official OS/package workflow;
+Use source-labelled last-open signals and size completeness before planning actions.
+Uninstall review uses the official OS/package workflow;
 recursive folder deletion is not an uninstall method.
 
 **Duplicates:** size grouping is only a shortlist. Exact groups need full streaming
 SHA-256 and content verification, with every member listed. Account for hard links;
-physical recovery stays null for uncertain sparse/COW/cloned storage. Preserve
-backups and every copy. A suggested retain path is a review convenience with a stated
+physical recovery stays null for uncertain sparse/COW/cloned storage. Scans preserve
+backups and every copy; a later exact-target action must satisfy actions.md. A suggested retain path is a review convenience with a stated
 reason, not a decision to remove the others. Similar images are not exact duplicates.

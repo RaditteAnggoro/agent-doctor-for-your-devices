@@ -44,10 +44,24 @@ type Finding struct {
 	Limitations          []string     `json:"limitations"`
 	PossibleConsequences string       `json:"possible_consequences"`
 	ManualInspection     string       `json:"manual_inspection"`
+	Decision             *Decision    `json:"decision,omitempty"`
 	Junk                 *Junk        `json:"junk,omitempty"`
 	Performance          *Performance `json:"performance,omitempty"`
 	Application          *Application `json:"application,omitempty"`
 	Duplicate            *Duplicate   `json:"duplicate,omitempty"`
+}
+
+// Decision provides review preparation only. It never grants execution approval.
+type Decision struct {
+	State                 string   `json:"state"`
+	SuggestedChoice       string   `json:"suggested_choice"`
+	ActionType            string   `json:"action_type"`
+	Reasons               []string `json:"reasons"`
+	MissingEvidence       []string `json:"missing_evidence"`
+	ActionBlockers        []string `json:"action_blockers"`
+	Questions             []string `json:"questions"`
+	NextSteps             []string `json:"next_steps"`
+	PotentialLogicalBytes *int64   `json:"potential_logical_bytes"`
 }
 type Junk struct {
 	File             File       `json:"file"`
@@ -62,6 +76,12 @@ type Junk struct {
 	ReviewStatus     string     `json:"review_status"`
 }
 type Performance struct {
+	LogicalCPUs           int     `json:"logical_cpus,omitempty"`
+	MemoryFreeBytes       *int64  `json:"memory_free_bytes,omitempty"`
+	MemoryCompressedBytes *int64  `json:"memory_compressed_bytes,omitempty"`
+	MemoryPressureLevel   *string `json:"memory_pressure_level,omitempty"`
+	MemoryPressureReason  string  `json:"memory_pressure_reason,omitempty"`
+
 	PID                  *int     `json:"pid"`
 	ProcessName          *string  `json:"process_name"`
 	ExecutablePath       *string  `json:"executable_path"`
@@ -81,6 +101,18 @@ type Performance struct {
 	ObservedImpact       string   `json:"observed_impact"`
 }
 type Application struct {
+	BundleID         *string    `json:"bundle_id,omitempty"`
+	AppRole          string     `json:"app_role,omitempty"`
+	SystemApp        *bool      `json:"system_app,omitempty"`
+	SizeStatus       string     `json:"size_status,omitempty"`
+	SizeEntries      int        `json:"size_entries,omitempty"`
+	SizeLimitations  []string   `json:"size_limitations,omitempty"`
+	UsageStatus      string     `json:"usage_status,omitempty"`
+	UsageReason      string     `json:"usage_reason,omitempty"`
+	RunningReason    string     `json:"running_reason,omitempty"`
+	BundleModifiedAt *time.Time `json:"bundle_modified_at,omitempty"`
+	RelatedApps      []string   `json:"related_apps,omitempty"`
+
 	Name             string     `json:"name"`
 	Version          *string    `json:"version"`
 	Location         *string    `json:"location"`

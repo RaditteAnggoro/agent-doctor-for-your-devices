@@ -43,3 +43,14 @@ func TestBoundedAndCancellableInput(t *testing.T) {
 		t.Fatal("input ignored cancellation")
 	}
 }
+
+func TestJSONOutputEscapesDirectionalControls(t *testing.T) {
+	var b bytes.Buffer
+	value := "synthetic\u202eapp"
+	if e := jsonOut(&b, map[string]string{"target": value}); e != nil {
+		t.Fatal(e)
+	}
+	if strings.ContainsRune(b.String(), '\u202e') || !strings.Contains(b.String(), `\u202e`) {
+		t.Fatal("invisible direction control escaped display")
+	}
+}

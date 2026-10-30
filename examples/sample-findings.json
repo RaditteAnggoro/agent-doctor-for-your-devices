@@ -37,6 +37,32 @@
       "findings": [
         {
           "confidence": "MEDIUM",
+          "decision": {
+            "action_blockers": [
+              "This read-only review is not execution approval. A later action requires exact targets, current identity checks, consequences and explicit user confirmation."
+            ],
+            "action_type": "MANUAL_FILE_REVIEW",
+            "missing_evidence": [
+              "Reliable last use and owning app activity are unknown.",
+              "Backup/sync role and physical storage recovery are not established.",
+              "Hardlink count is unknown; logical copies do not establish physical recovery."
+            ],
+            "next_steps": [
+              "Inspect the exact path and its purpose, then record keep or review-later if uncertain.",
+              "If later selected for file cleanup, review backup/sync propagation and an OS Trash recovery route before approving exact targets."
+            ],
+            "potential_logical_bytes": 5,
+            "questions": [
+              "Is the file still needed for work, troubleshooting, restoration or offline use?",
+              "Is this the only copy you need, and is a usable backup available?"
+            ],
+            "reasons": [
+              "Category temporary_file; logical size 5 bytes; modification time 2026-01-01T00:00:00Z.",
+              "0 days since modification; modification age is not last use."
+            ],
+            "state": "NEEDS_REVIEW",
+            "suggested_choice": "INSPECT"
+          },
           "evidence": [
             "Synthetic metadata"
           ],
@@ -97,6 +123,30 @@
       "findings": [
         {
           "confidence": "MEDIUM",
+          "decision": {
+            "action_blockers": [
+              "This read-only review is not execution approval. A later action requires exact targets, current identity checks, consequences and explicit user confirmation."
+            ],
+            "action_type": "INVESTIGATE_PROCESS",
+            "missing_evidence": [
+              "Memory pressure unknown: SYNTHETIC pressure source unavailable",
+              "Available memory is unknown; free pages and total RAM alone do not establish memory pressure.",
+              "Swap usage was not measured."
+            ],
+            "next_steps": [
+              "Compare resource observations over a longer representative workload in the OS system monitor.",
+              "Review dependencies and active work before choosing any manual action; this report stops no processes and changes no startup entries."
+            ],
+            "potential_logical_bytes": null,
+            "questions": [
+              "What slowdown or resource symptom are you observing, and during which workload?"
+            ],
+            "reasons": [
+              "Resource measurements are observations, not proof of a persistent fault or a reason to uninstall an app."
+            ],
+            "state": "OBSERVE",
+            "suggested_choice": "OBSERVE_LONGER"
+          },
           "evidence": [
             "Synthetic metadata"
           ],
@@ -116,9 +166,11 @@
             "disk_available_bytes": null,
             "disk_total_bytes": null,
             "executable_path": null,
+            "logical_cpus": 4,
             "memory_available_bytes": null,
+            "memory_pressure_reason": "SYNTHETIC pressure source unavailable",
             "memory_total_bytes": null,
-            "observation_seconds": 1,
+            "observation_seconds": 3,
             "observed_impact": "Unknown",
             "owner": null,
             "pid": null,
@@ -153,22 +205,63 @@
       "findings": [
         {
           "application": {
+            "app_role": "MAIN",
+            "bundle_id": "com.example.synthetic",
+            "bundle_modified_at": "2026-09-01T10:00:00Z",
             "dependency_notes": "",
-            "install_size_bytes": null,
+            "install_size_bytes": 734003200,
             "installed_at": null,
-            "last_usage": null,
+            "last_usage": "2026-09-14T10:00:00Z",
             "location": null,
             "name": "Synthetic App",
             "related_services": null,
-            "running": null,
-            "size_method": "",
+            "running": false,
+            "running_reason": "SYNTHETIC comm-only snapshot: no matching visible process",
+            "size_entries": 120,
+            "size_limitations": [
+              "SYNTHETIC evidence only; no device data was collected"
+            ],
+            "size_method": "SYNTHETIC bounded logical bundle measurement; excludes external app data",
+            "size_status": "COMPLETED",
             "source": "synthetic",
+            "system_app": false,
             "uninstall_method": "Use the OS interface",
             "updated_at": null,
-            "usage_provenance": "UNKNOWN",
+            "usage_provenance": "SYNTHETIC Spotlight LaunchServices open signal",
+            "usage_reason": "Illustrative open metadata, not complete activity history",
+            "usage_status": "AVAILABLE",
             "version": null
           },
           "confidence": "MEDIUM",
+          "decision": {
+            "action_blockers": [
+              "This read-only review is not execution approval. A later action requires exact targets, current identity checks, consequences and explicit user confirmation."
+            ],
+            "action_type": "MANUAL_UNINSTALL_REVIEW",
+            "missing_evidence": [
+              "Last-use timestamp cannot be compared reliably to this observation.",
+              "Private app data, licenses, reliable installation time and actual dependency graph are not measured by the bundle inventory."
+            ],
+            "next_steps": [
+              "Review the exact installation location, measured size and usage source.",
+              "Check the vendor's official uninstall instructions; identify a dedicated uninstaller if required.",
+              "Record keep, review-later, skip or mark-reviewed; choose exact app/data scope separately for a future phase.",
+              "Use the OS interface"
+            ],
+            "potential_logical_bytes": 734003200,
+            "questions": [
+              "Do you still use this app, including occasional or offline work?",
+              "Does another tool, browser extension, VPN or security workflow depend on it?",
+              "Which documents, settings and licenses need backup or retention?"
+            ],
+            "reasons": [
+              "An installed application record is available; installation is not evidence of disuse.",
+              "Bundle/package logical size: 734003200 bytes; method: SYNTHETIC bounded logical bundle measurement; excludes external app data; status: COMPLETED.",
+              "No matching process was observed in the snapshot; this does not prove the application is unused."
+            ],
+            "state": "NEEDS_REVIEW",
+            "suggested_choice": "INSPECT"
+          },
           "evidence": [
             "Synthetic metadata"
           ],
@@ -206,6 +299,33 @@
       "findings": [
         {
           "confidence": "MEDIUM",
+          "decision": {
+            "action_blockers": [
+              "This read-only review is not execution approval. A later action requires exact targets, current identity checks, consequences and explicit user confirmation."
+            ],
+            "action_type": "COMPARE_DUPLICATES",
+            "missing_evidence": [
+              "The purpose, external references and backup role of each copy are unknown.",
+              "Physical storage recovery, clones and snapshot sharing are unknown.",
+              "Hardlink count is unknown; logical copies do not establish physical recovery."
+            ],
+            "next_steps": [
+              "Compare every member path, modification date, size and link flags.",
+              "Choose a retained path explicitly; the displayed suggestion is only a neutral review starting point.",
+              "Keep all app-managed or referenced copies until their owners and recovery requirements are established."
+            ],
+            "potential_logical_bytes": 5,
+            "questions": [
+              "Which exact path should remain available, and which applications or projects reference each copy?",
+              "Are these intentional backups, exports or app-managed uploads?",
+              "Has each proposed removal target been revalidated since this scan?"
+            ],
+            "reasons": [
+              "2 members; EXACT_CONTENT / SHA-256 verification; logical redundant bytes 5."
+            ],
+            "state": "NEEDS_REVIEW",
+            "suggested_choice": "COMPARE_COPIES"
+          },
           "duplicate": {
             "backup_warning": "Unknown",
             "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -284,5 +404,5 @@
     "duplicates"
   ],
   "timestamp": "2026-01-01T00:00:00Z",
-  "version": "0.1.0"
+  "version": "0.2.0"
 }

@@ -53,3 +53,12 @@ Exit codes: `0` success, `1` internal/storage error, `2` partial, `3` unsupporte
 should retain useful reports even when a collector returns partial coverage.
 
 `session resume --format json` emits one object containing `report` and `review_state`. Share-safe resume also redacts review notes and review timestamps. Resume supports Markdown or JSON; use `report` for CSV. Interactive terminal Markdown previews at most 20 findings per feature; exports and redirected scan output retain the complete inventory.
+
+## Version 0.2 decision evidence and actions
+
+Scans remain read-only and now include decision-oriented evidence. Experimental
+phase2 is a separate opt-in path; see [ACTIONS.md](ACTIONS.md) for supported native
+macOS Trash/bundle-only uninstall, exact approval, persistence, recovery and residual
+races. Read legacy v1 restrictions above as scan behavior; they do not describe the
+new separately approved action boundary. Windows/Linux action execution remains
+unsupported. Never use personal reports or real app data as development fixtures.

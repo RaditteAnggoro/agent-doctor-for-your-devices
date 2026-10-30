@@ -379,3 +379,68 @@ func TestSerializedReportsMatchPublishedSchema(t *testing.T) {
 		t.Fatal("schema accepted finding without feature evidence")
 	}
 }
+
+func TestHumanApplicationEvidenceSupportsDecisions(t *testing.T) {
+	r := syntheticReport()
+	r.Version = "0.2.0"
+	a := r.Results[2].Findings[0].Application
+	size := int64(123456789)
+	used := r.Timestamp.Add(-30 * 24 * time.Hour)
+	running := true
+	system := false
+	a.InstallSizeBytes = &size
+	a.SizeStatus = "PARTIAL"
+	a.SizeMethod = "metadata-only measured lower bound"
+	a.SizeLimitations = []string{"Entry budget reached"}
+	a.LastUsage = &used
+	a.UsageStatus = "AVAILABLE"
+	a.UsageProvenance = "Spotlight last-used metadata"
+	a.UsageReason = "Opening signal only, not full activity history"
+	a.Running = &running
+	a.RunningReason = "Observed executable within bundle"
+	a.SystemApp = &system
+	a.AppRole = "MAIN"
+	r.Results[2].Findings[0].Decision = &findings.Decision{State: "NEEDS_REVIEW", SuggestedChoice: "INSPECT", ActionType: "MANUAL_UNINSTALL_REVIEW", Reasons: []string{"Running app requires review"}, MissingEvidence: []string{"Backup status unknown"}, ActionBlockers: []string{"Confirm exact target and backup"}, Questions: []string{"Do you still need this app for work?"}, NextSteps: []string{"Review official uninstall method"}}
+	var b bytes.Buffer
+	if err := Write(&b, r, "markdown", "applications", false); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"Logical app size / measurement", "at least 123.46 MB (123456789 bytes)", "2025-12-02 (30 days)", "Spotlight last-used metadata", "Entry budget reached", "Observed executable within bundle", "Do you still need this app for work?", "Backup status unknown", "NEEDS\\_REVIEW", "No finding approves uninstall or deletion"} {
+		if !strings.Contains(b.String(), want) {
+			t.Fatalf("missing decision evidence %q", want)
+		}
+	}
+	if strings.Contains(b.String(), `"application": {`) {
+		t.Fatal("human report still dumps repeated finding JSON")
+	}
+	for _, format := range []string{"json", "markdown", "csv"} {
+		b.Reset()
+		if err := Write(&b, r, format, "applications", true); err != nil {
+			t.Fatal(err)
+		}
+		for _, secret := range []string{"Spotlight last-used metadata", "Do you still need", "Backup status unknown"} {
+			if strings.Contains(b.String(), secret) {
+				t.Fatalf("%s leaked %q", format, secret)
+			}
+		}
+	}
+}
+func TestHumanLegacyUnknownsAndEveryDuplicateMember(t *testing.T) {
+	r := syntheticReport()
+	member := r.Results[3].Findings[0].Duplicate.Members[1]
+	member.Path = "/synthetic/backup/second copy.tmp"
+	member.Modified = r.Timestamp.Add(-2 * 24 * time.Hour)
+	r.Results[3].Findings[0].Duplicate.Members[1] = member
+	var b bytes.Buffer
+	if err := Write(&b, r, "markdown", "", false); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"Not assessed in this scan", "UNKNOWN (not collected in this scan)", "Member exact path", "/synthetic/backup/second copy.tmp", "2025-12-30", "Window seconds", "CPU % (100% = one logical core)"} {
+		if !strings.Contains(b.String(), want) {
+			t.Fatalf("legacy/member evidence missing %q", want)
+		}
+	}
+	if strings.Contains(b.String(), "Application is unused") {
+		t.Fatal("unknown usage became disuse")
+	}
+}

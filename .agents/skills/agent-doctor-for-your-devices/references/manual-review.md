@@ -22,7 +22,8 @@ Export requires an explicit destination; refuse accidental overwrites. `session 
 and `session resume <scan-id>` restore saved reports and decisions. `session cancel`
 marks saved state; Ctrl+C interrupts an active CLI process.
 
-When users request cleanup, explain the reviewed risks and official manual UI steps
-where supported. Do not generate bulk destructive commands, silently escalate or
-use a different tool to bypass v1's read-only boundary. Finishing while keeping all
+When users request cleanup, explain the reviewed risks and official vendor/UI steps.
+For eligible native macOS items, follow actions.md to prepare and obtain fresh
+per-plan approval. Do not generate bulk destructive commands, silently escalate,
+or use another tool to bypass a rejected action. Finishing while keeping all
 items is a complete session.

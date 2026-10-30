@@ -1,28 +1,176 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "action-plan.schema.json",
+  "title": "Experimental immutable exact-target Trash plan; no implicit approval",
   "type": "object",
   "properties": {
     "schema_version": {
       "const": "1.0"
     },
-    "status": {
-      "const": "NOT_IMPLEMENTED"
+    "id": {
+      "type": "string",
+      "pattern": "^plan-[a-f0-9]{24}$"
     },
-    "reason": {
-      "const": "Automated actions are outside v1. Retain all source items."
+    "scan_id": {
+      "type": "string"
     },
-    "actions": {
+    "finding_id": {
+      "type": "string",
+      "pattern": "^[JAD]-[0-9]{6}$"
+    },
+    "action": {
+      "enum": [
+        "TRASH_FILE",
+        "UNINSTALL_APP_BUNDLE"
+      ]
+    },
+    "os": {
+      "enum": [
+        "darwin",
+        "linux"
+      ]
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "modified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "logical_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "directory": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "device",
+        "identity",
+        "size",
+        "modified",
+        "sha256",
+        "logical_bytes",
+        "directory"
+      ],
+      "additionalProperties": false
+    },
+    "retain": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "device": {
+          "type": "string"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "modified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "logical_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "directory": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "device",
+        "identity",
+        "size",
+        "modified",
+        "sha256",
+        "logical_bytes",
+        "directory"
+      ],
+      "additionalProperties": false
+    },
+    "approved_root": {
+      "type": "string"
+    },
+    "max_read_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 68719476736
+    },
+    "backup_reviewed": {
+      "const": true
+    },
+    "bundle_only": {
+      "type": "boolean"
+    },
+    "consequences": {
       "type": "array",
-      "maxItems": 0
+      "items": {
+        "type": "string"
+      }
+    },
+    "recovery": {
+      "type": "string"
+    },
+    "approval_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
     }
   },
   "required": [
     "schema_version",
-    "status",
-    "reason",
-    "actions"
+    "id",
+    "scan_id",
+    "finding_id",
+    "action",
+    "os",
+    "created",
+    "expires",
+    "target",
+    "approved_root",
+    "max_read_bytes",
+    "backup_reviewed",
+    "bundle_only",
+    "consequences",
+    "recovery",
+    "approval_hash"
   ],
-  "additionalProperties": false,
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "action-plan.schema.json",
-  "description": "Reserved capability response; no executable action plan or apply command exists in v1."
+  "additionalProperties": false
 }

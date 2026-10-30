@@ -21,3 +21,12 @@ JSON preserves nulls; CSV is feature-selected and formula-neutralized. The CLI's
 share-safe option redacts data-derived strings; review exported metadata for remaining
 sensitivity before sharing. Reports contain no raw content or process arguments.
 End with actual change counts and saved destinations, never estimated “improvements”.
+
+Decision-oriented chat output is required: application size/status/method, last-used
+signal/source/reason, current running evidence, role, related-app hints, risk and
+questions before uninstall. A name-only inventory is insufficient. Junk needs
+modification date/age and purpose questions. Duplicates need exact per-member paths,
+size/date/link flags and an explicitly retained copy. Performance needs duration,
+metric source, scope and uncertainty. Show unavailable evidence plainly and offer
+collecting missing facts or keeping an item. Execution results come from action
+journals, not inference from scan recommendations.

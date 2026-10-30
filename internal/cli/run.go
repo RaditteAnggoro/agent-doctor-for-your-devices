@@ -1,8 +1,9 @@
-// Package cli is the terminal boundary. Target files are never writable here.
+// Package cli separates read-only scans from explicitly approved experimental actions.
 package cli
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -15,8 +16,11 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf16"
 
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/buildinfo"
+	decisionguide "github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/decision"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/discovery"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/findings"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/reports"
@@ -31,7 +35,7 @@ import (
 )
 
 const help = `Agent Doctor For Your Devices — Scan first. Understand everything. Decide yourself.
-Read-only toward target files. No automated cleanup or uninstall commands.
+Scans are read-only. Experimental action plans require separate exact-target approval.
 
 agent-doctor doctor | version | about
 agent-doctor scan --interactive
@@ -43,9 +47,13 @@ agent-doctor inspect|explain|reveal FINDING --scan ID
 agent-doctor review FINDING --scan ID --decision keep|review-later|skip|mark-reviewed [--note TEXT]
 agent-doctor session list|resume ID|cancel ID
 agent-doctor export --scan ID --format markdown|json|csv --output FILE [--share-safe]
+agent-doctor plan --enable-actions --scan ID --finding ID --action trash|uninstall --target PATH --backup-reviewed [--keep PATH] [--bundle-only]
+agent-doctor apply --enable-actions --plan ID --approve SHA256
+agent-doctor action-status --plan ID
 
 Session commands require a scan saved using --store. --data-dir DIR selects session storage.
 Scan limits: --max-files 10000 --max-depth 12 --max-bytes 1073741824 --timeout 30s.
+--sample-duration 3s sets CPU observation (1s..30s).
 --exclude DIR is repeatable. CSV requires one --feature. --store explicitly writes private local reports.
 Remote/container/WSL/Crostini scans require --confirm-environment after doctor review.
 Reveal provides containing-folder paths for manual navigation; it never launches files.
@@ -62,7 +70,7 @@ func (s *listFlag) Set(v string) error { *s = append(*s, v); return nil }
 func reorder(args []string) []string {
 	flags := []string{}
 	pos := []string{}
-	bools := map[string]bool{"all": true, "read-only": true, "interactive": true, "store": true, "summary": true, "share-safe": true, "confirm-environment": true, "help": true}
+	bools := map[string]bool{"all": true, "read-only": true, "interactive": true, "store": true, "summary": true, "share-safe": true, "confirm-environment": true, "help": true, "enable-actions": true, "backup-reviewed": true, "bundle-only": true}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if a == "--" {
@@ -83,9 +91,27 @@ func reorder(args []string) []string {
 	return append(flags, pos...)
 }
 func jsonOut(w io.Writer, v any) error {
-	e := json.NewEncoder(w)
+	var b bytes.Buffer
+	e := json.NewEncoder(&b)
 	e.SetIndent("", "  ")
-	return e.Encode(v)
+	if err := e.Encode(v); err != nil {
+		return err
+	}
+	var safe strings.Builder
+	for _, r := range b.String() {
+		if unicode.In(r, unicode.Cf) {
+			if r <= 0xffff {
+				fmt.Fprintf(&safe, "\\u%04x", r)
+			} else {
+				a, b := utf16.EncodeRune(r)
+				fmt.Fprintf(&safe, "\\u%04x\\u%04x", a, b)
+			}
+		} else {
+			safe.WriteRune(r)
+		}
+	}
+	_, err := io.WriteString(w, safe.String())
+	return err
 }
 func errCode(w io.Writer, code int, err error) int {
 	fmt.Fprintf(w, "Error: %s\n", terminal(err.Error()))
@@ -135,6 +161,16 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 	maxDepth := fs.Int("max-depth", 12, "maximum directory depth")
 	maxBytes := fs.Int64("max-bytes", 1<<30, "hash and verification byte budget")
 	timeout := fs.Duration("timeout", 30*time.Second, "scan time budget")
+	sampleDuration := fs.Duration("sample-duration", 3*time.Second, "CPU observation window (1s..30s)")
+	actionEnabled := fs.Bool("enable-actions", false, "enable experimental exact-target actions")
+	backupReviewed := fs.Bool("backup-reviewed", false, "acknowledge backup and retention review")
+	bundleOnly := fs.Bool("bundle-only", false, "confirm bundle-only uninstall after vendor review")
+	findingID := fs.String("finding", "", "finding ID for an action plan")
+	actionName := fs.String("action", "", "trash or uninstall")
+	targetPath := fs.String("target", "", "exact selected source path")
+	keepPath := fs.String("keep", "", "exact duplicate member to retain")
+	planID := fs.String("plan", "", "saved immutable action plan ID")
+	approval := fs.String("approve", "", "explicit reviewed plan SHA-256")
 	var roots, exclusions listFlag
 	fs.Var(&roots, "scope", "approved directory")
 	fs.Var(&exclusions, "exclude", "excluded directory")
@@ -162,6 +198,9 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 		env := discovery.Detect()
 		if (env.Type != "native" || env.Remote) && !*confirmEnv {
 			return errCode(stderr, 64, fmt.Errorf("execution environment %s (host %s): run doctor, then explicitly pass --confirm-environment to scan this environment", env.Type, env.HostOS))
+		}
+		if *sampleDuration < time.Second || *sampleDuration > 30*time.Second {
+			return errCode(stderr, 64, errors.New("sample-duration must be between 1s and 30s"))
 		}
 		if *maxFiles < 1 || *maxFiles > 100000 || *maxDepth < 0 || *maxDepth > 64 || *maxBytes < 0 || *maxBytes > 64<<30 || *timeout <= 0 || *timeout > 10*time.Minute {
 			return errCode(stderr, 64, errors.New("invalid resource limits: files 1..100000, depth 0..64, bytes 0..64GiB, timeout 0..10m"))
@@ -213,7 +252,7 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 			return errCode(stderr, 64, errors.New("CSV requires a single --feature"))
 		}
 		if *interactive {
-			fmt.Fprintf(stderr, "Confirm read-only scan: host=%s execution=%s environment=%s features=%v roots=%q exclusions=%q max-files=%d max-depth=%d max-bytes=%d timeout=%s store=%t data-dir=%q. Start? yes/no\n", env.HostOS, env.OS, env.Type, features, scope.Roots, scope.Exclusions, *maxFiles, *maxDepth, *maxBytes, *timeout, *store, *dataDir)
+			fmt.Fprintf(stderr, "Confirm read-only scan: host=%s execution=%s environment=%s features=%v roots=%q exclusions=%q max-files=%d max-depth=%d max-bytes=%d timeout=%s sample-duration=%s store=%t data-dir=%q. Start? yes/no\n", env.HostOS, env.OS, env.Type, features, scope.Roots, scope.Exclusions, *maxFiles, *maxDepth, *maxBytes, *timeout, *sampleDuration, *store, *dataDir)
 			// onboard returns a buffered reader so prefetched input remains available.
 			answer, err := readAnswer(ctx, in)
 			if err != nil || strings.ToLower(answer) != "yes" {
@@ -248,11 +287,11 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 			case "duplicates":
 				r = duplicates.Collect(scanCtx, inventory, *maxBytes)
 			case "performance":
-				r = performance.Collect(scanCtx, env)
+				r = performance.CollectWithDuration(scanCtx, env, *sampleDuration)
 			case "applications":
 				r = applications.Collect(scanCtx, env)
 			}
-			report.Results = append(report.Results, r)
+			report.Results = append(report.Results, decisionguide.Annotate(r, start))
 		}
 		report.ElapsedSeconds = time.Since(start).Seconds()
 		if *store {
@@ -283,6 +322,21 @@ func Run(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer
 	st, err := getStore(*dataDir)
 	if err != nil {
 		return errCode(stderr, 1, err)
+	}
+	if command == "plan" || command == "apply" || command == "action-status" {
+		if *share {
+			return errCode(stderr, 64, errors.New("action plans and journals require exact private targets; use share-safe export for scan reports instead"))
+		}
+		if *format != "markdown" && *format != "json" {
+			return errCode(stderr, 64, errors.New("action output supports markdown or json"))
+		}
+		if fs.NArg() != 0 {
+			return errCode(stderr, 64, errors.New("use action flags without positional arguments"))
+		}
+		if *timeout <= 0 || *timeout > 10*time.Minute {
+			return errCode(stderr, 64, errors.New("action timeout must be 0..10m"))
+		}
+		return runAction(ctx, command, st, actionFlags{Enabled: *actionEnabled, BackupReviewed: *backupReviewed, BundleOnly: *bundleOnly, ScanID: *scanID, FindingID: *findingID, Action: *actionName, Target: *targetPath, Keep: *keepPath, PlanID: *planID, Approval: *approval, Format: *format, MaxBytes: *maxBytes, Timeout: *timeout}, out, stderr)
 	}
 	if command == "session" {
 		if fs.NArg() < 1 {

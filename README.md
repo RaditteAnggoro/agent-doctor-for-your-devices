@@ -6,9 +6,12 @@ A local Go CLI plus an agent skill for investigating device maintenance. It find
 explainable junk candidates, samples performance, inventories applications and groups
 exact duplicates. Findings include evidence, uncertainty and manual inspection steps.
 
-**v1 is read-only toward device data. There is no automated deletion, uninstall or
-process termination.** Reports and review state are written only when you choose
-local storage or an export destination. You can keep every item and finish with a
+**Scans remain read-only toward device data.** Version 0.2 adds richer decision
+reports and a separate experimental action workflow. On eligible native macOS
+items, explicitly approved plans can move one file or one eligible app bundle to
+Trash. There is no permanent deletion, process termination or app-data purge.
+Reports and review state are written when you choose local storage/export; action
+plans and their journals require private local storage. You can keep every item and finish with a
 useful report. No telemetry, account or network connection is required by the CLI.
 
 ## Build from source
@@ -133,7 +136,7 @@ issues. Read [privacy](docs/PRIVACY.md), [threat model](docs/THREAT_MODEL.md),
 
 There is no antivirus, registry cleaner, background optimizer or security-audit claim.
 Filesystem races, false positives, permissions and short observation windows limit
-conclusions. Similar-image detection and automated cleanup are outside v1.
+conclusions. Similar-image detection and permanent deletion remain unavailable. Experimental native Trash actions are described below.
 
 Run `go vet ./...`, `go test -race ./...` and `go build ./cmd/agent-doctor` for local
 checks. CI additionally checks formatting and cross-compiles planned architectures.
@@ -151,3 +154,42 @@ or endorsement and no upstream implementation code is incorporated.
 
 Original code: [MIT](LICENSE), copyright 2026 RA. Upstream licenses differ;
 see [inspiration](docs/INSPIRATION.md), [notices](THIRD_PARTY_NOTICES.md) and [NOTICE.md](NOTICE.md).
+
+## Decision reports in 0.2
+
+Application reports show logical bundle/package size, measurement status and method,
+last-used evidence with its source and missing-data reason, running evidence,
+system/component role, related-app hints and decision questions. macOS bundle
+measurement is bounded; PARTIAL means a lower bound. Spotlight's last-used field is
+a LaunchServices open signal, not a complete activity log. No value means unknown.
+Windows/Linux retain package-size estimates and explain unavailable usage fields.
+
+Junk reports distinguish modification age from last use and installers from installed
+applications. Duplicate reports show every member's exact location, date, size and
+link observations, with reference/backup questions. Performance defaults to a 3-second
+CPU observation (`--sample-duration 1s..30s`) and adds supported macOS free/compressed
+page and swap observations. Free pages alone do not establish memory pressure.
+
+Every finding has review guidance: reasons, missing evidence, questions, action
+blockers and next steps. Old stored reports remain readable; new fields absent from
+an old scan are displayed as not collected. See [reporting](docs/REPORTING.md).
+
+## Experimental delete and uninstall phase
+
+Use [the action guide](docs/ACTIONS.md). `plan` never changes the selected target;
+`apply` requires the exact reviewed plan hash. Plans expire after 15 minutes and
+revalidate the saved scan (at most 24 hours old), current target and retained copy.
+
+Native macOS supports single regular-file Trash actions and eligible **bundle-only
+uninstall** actions. The latter moves the `.app` to Trash while retaining documents,
+preferences, caches, subscriptions and integrations. Running/unknown, system, helper,
+related-product and detected integration apps are blocked for vendor/manual review.
+Root-owned bundles requiring elevation are also blocked. The user must inspect vendor
+instructions before choosing bundle-only removal, consistent with
+[Apple's uninstall guidance](https://support.apple.com/102610).
+
+Windows, Linux, WSL, remote sessions and Crostini currently return UNSUPPORTED or a
+clear action rejection; their read-only collectors still work within documented limits.
+No fallback permanently deletes a target. Local synthetic native Trash/restore tests
+are opt-in; standard CI never touches a runner's native Trash. External file writers,
+visibility-limited process snapshots and independent action stores remain limits.

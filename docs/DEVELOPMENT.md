@@ -28,3 +28,19 @@ and SHA-256 checksums as workflow artifacts. It does not publish a tag or releas
 After reviewing passing jobs, maintainers may create a release and attach those
 artifacts. Include MIT and toolchain notices. Binaries are unsigned unless a future
 release explicitly documents signature verification.
+
+## Version 0.2 decision evidence and actions
+
+Scans remain read-only and now include decision-oriented evidence. Experimental
+phase2 is a separate opt-in path; see [ACTIONS.md](ACTIONS.md) for supported native
+macOS Trash/bundle-only uninstall, exact approval, persistence, recovery and residual
+races. Read legacy v1 restrictions above as scan behavior; they do not describe the
+new separately approved action boundary. Windows/Linux action execution remains
+unsupported. Never use personal reports or real app data as development fixtures.
+
+Native macOS integration is opt-in and uses only generated synthetic artifacts;
+each native Trash move is immediately restored. Run it separately from normal CI:
+
+```sh
+AGENT_DOCTOR_NATIVE_TRASH_TEST=1 go test -run '^TestNativeTrashAndRestoreSynthetic$' -v ./internal/core/actions
+```

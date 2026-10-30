@@ -5,12 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/cli"
+	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/actions"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/core/findings"
 	"github.com/RaditteAnggoro/agent-doctor-for-your-devices/internal/testkit"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
+	"time"
 )
 
 func run(t *testing.T, input string, args ...string) (int, string, string) {
@@ -121,5 +124,79 @@ func TestResumeJSONIsSingleValueAndShareSafe(t *testing.T) {
 	}
 	if envelope["report"] == nil || envelope["review_state"] == nil || strings.Contains(out, "very-private") || strings.Contains(out, "secret private") || strings.Contains(out, dir) {
 		t.Fatal("resume leaked sensitive fields", out)
+	}
+}
+
+func TestActionCommandsRequireSeparateExplicitOptIn(t *testing.T) {
+	for _, command := range []string{"plan", "apply"} {
+		code, _, errs := run(t, "", command, "--data-dir", testkit.Dir(t))
+		if code != 64 || !strings.Contains(errs, "enable-actions") {
+			t.Fatal(command, code, errs)
+		}
+	}
+	code, _, errs := run(t, "", "plan", "--enable-actions", "--share-safe", "--data-dir", testkit.Dir(t))
+	if code != 64 || !strings.Contains(errs, "private targets") {
+		t.Fatal(code, errs)
+	}
+}
+
+// Explicit opt-in native integration uses only generated temporary artifacts.
+func TestNativeCLIActionJournalAndReplay(t *testing.T) {
+	if os.Getenv("AGENT_DOCTOR_NATIVE_TRASH_TEST") != "1" || runtime.GOOS != "darwin" {
+		t.Skip("opt-in native macOS integration")
+	}
+	dir := testkit.Dir(t)
+	store := testkit.Dir(t)
+	path := testkit.File(t, dir, "agent-doctor-native-cli-synthetic.tmp", "synthetic CLI Trash fixture")
+	old := time.Now().Add(-60 * 24 * time.Hour)
+	if e := os.Chtimes(path, old, old); e != nil {
+		t.Fatal(e)
+	}
+	code, text, errs := run(t, "", "scan", "--feature", "junk", "--scope", dir, "--store", "--data-dir", store, "--format", "json", "--confirm-environment")
+	if code != 0 {
+		t.Fatal(code, errs)
+	}
+	var r findings.Report
+	if e := json.Unmarshal([]byte(text), &r); e != nil {
+		t.Fatal(e)
+	}
+	code, text, errs = run(t, "", "plan", "--enable-actions", "--scan", r.ScanID, "--finding", "J-000001", "--action", "trash", "--target", path, "--backup-reviewed", "--data-dir", store, "--format", "json")
+	if code != 0 {
+		t.Fatal(code, errs)
+	}
+	var plan actions.Plan
+	if e := json.Unmarshal([]byte(text), &plan); e != nil {
+		t.Fatal(e)
+	}
+	code, text, errs = run(t, "", "apply", "--enable-actions", "--plan", plan.ID, "--approve", plan.ApprovalHash, "--data-dir", store)
+	if code != 0 {
+		t.Fatal(code, text, errs)
+	}
+	var result actions.Outcome
+	if e := json.Unmarshal([]byte(text), &result); e != nil {
+		t.Fatal(e)
+	}
+	// Recover this known synthetic artifact immediately, even on a failed assertion.
+	defer func() {
+		if result.TrashLocation != "" {
+			if _, e := os.Stat(result.TrashLocation); e == nil {
+				if e := os.Rename(result.TrashLocation, path); e != nil {
+					t.Errorf("restore known synthetic fixture from %q: %v", result.TrashLocation, e)
+				}
+			}
+		}
+	}()
+	if result.Status != "COMPLETED" || result.FilesTrashed != 1 || result.PermanentDeletions != 0 {
+		t.Fatal(result)
+	}
+	if e := os.Rename(result.TrashLocation, path); e != nil {
+		t.Fatal("synthetic restore", e)
+	}
+	code, _, errs = run(t, "", "apply", "--enable-actions", "--plan", plan.ID, "--approve", plan.ApprovalHash, "--data-dir", store)
+	if code != 0 || !strings.Contains(errs, "no new native action") {
+		t.Fatal("replay failed", code, errs)
+	}
+	if _, e := os.Stat(path); e != nil {
+		t.Fatal("replay executed again")
 	}
 }

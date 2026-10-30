@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "action-outcome.schema.json",
+  "title": "Private action journal; unknown outcomes never automatically retry",
+  "type": "object",
+  "properties": {
+    "plan_id": {
+      "type": "string",
+      "pattern": "^plan-[a-f0-9]{24}$"
+    },
+    "approval_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "enum": [
+        "STARTED",
+        "NOT_DISPATCHED",
+        "COMPLETED",
+        "UNKNOWN"
+      ]
+    },
+    "action": {
+      "enum": [
+        "TRASH_FILE",
+        "UNINSTALL_APP_BUNDLE"
+      ]
+    },
+    "target": {
+      "type": "string"
+    },
+    "trash_location": {
+      "type": "string"
+    },
+    "started": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "files_trashed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "app_bundles_trashed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "permanent_deletions": {
+      "const": 0
+    },
+    "message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan_id",
+    "approval_hash",
+    "status",
+    "action",
+    "target",
+    "started",
+    "finished",
+    "files_trashed",
+    "app_bundles_trashed",
+    "permanent_deletions",
+    "message"
+  ],
+  "additionalProperties": false
+}
